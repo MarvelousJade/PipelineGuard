@@ -1,0 +1,51 @@
+{
+  "$schema": "../schemas/validation-report-v1.schema.json",
+  "schemaVersion": "1.0",
+  "runId": "72cc11a7-c810-4902-90a6-a216ab9ab76a",
+  "toolVersion": "0.1.0",
+  "startedUtc": "2026-07-16T14:05:00Z",
+  "completedUtc": "2026-07-16T14:05:00.231Z",
+  "project": "PipelineGuardFixtures",
+  "engineVersion": "5.6.0",
+  "profile": "generic-fixtures",
+  "scope": [
+    "/Game/PipelineGuardFixtures"
+  ],
+  "summary": {
+    "assetsScanned": 8,
+    "rulesRun": 4,
+    "errors": 1,
+    "warnings": 1,
+    "infos": 0,
+    "suppressed": 0,
+    "durationMs": 231
+  },
+  "findings": [
+    {
+      "id": "pg-3f74b60c0e60a2d8",
+      "ruleId": "PG.Naming.Prefix",
+      "severity": "error",
+      "assetPath": "/Game/PipelineGuardFixtures/Textures/BadTexture.BadTexture",
+      "message": "Texture asset name does not use the configured T_ prefix.",
+      "remediation": "Rename the asset to T_BadTexture and let Unreal update references.",
+      "suppressed": false,
+      "metadata": {
+        "expectedPrefix": "T_",
+        "assetClass": "Texture2D"
+      }
+    },
+    {
+      "id": "pg-d214153ae55285a1",
+      "ruleId": "PG.Texture.PowerOfTwo",
+      "severity": "warning",
+      "assetPath": "/Game/PipelineGuardFixtures/Textures/T_OddSize.T_OddSize",
+      "message": "Texture dimensions 1000x512 are not powers of two.",
+      "remediation": "Resize the source texture to configured power-of-two dimensions or document an approved exception.",
+      "suppressed": false,
+      "metadata": {
+        "width": "1000",
+        "height": "512"
+      }
+    }
+  ]
+}

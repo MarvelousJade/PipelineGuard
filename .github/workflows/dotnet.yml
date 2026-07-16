@@ -1,0 +1,73 @@
+name: .NET portable checks
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "tools/**"
+      - "schemas/**"
+      - "samples/**"
+      - "PipelineGuard.sln"
+      - "Directory.Build.*"
+      - "Directory.Packages.props"
+      - "global.json"
+      - ".github/workflows/dotnet.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "tools/**"
+      - "schemas/**"
+      - "samples/**"
+      - "PipelineGuard.sln"
+      - "Directory.Build.*"
+      - "Directory.Packages.props"
+      - "global.json"
+      - ".github/workflows/dotnet.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }} / .NET 8
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore PipelineGuard.sln -p:NuGetAudit=true -p:NuGetAuditMode=all -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
+
+      - name: Report transitive package vulnerabilities
+        run: dotnet list PipelineGuard.sln package --vulnerable --include-transitive
+
+      - name: Build
+        run: dotnet build PipelineGuard.sln --configuration Release --no-restore --warnaserror
+
+      - name: Test
+        run: dotnet test PipelineGuard.sln --configuration Release --no-build --logger "trx;LogFileName=tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-results-${{ matrix.os }}
+          path: TestResults/${{ matrix.os }}
+          if-no-files-found: warn
+          retention-days: 14

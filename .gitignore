@@ -1,0 +1,37 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+TestResults/
+artifacts/
+
+# Unreal Engine
+unreal/Binaries/
+unreal/DerivedDataCache/
+unreal/Intermediate/
+unreal/Saved/
+unreal/.vs/
+unreal/*.sln
+unreal/PipelineGuard/Binaries/
+unreal/PipelineGuard/DerivedDataCache/
+unreal/PipelineGuard/Intermediate/
+unreal/PipelineGuard/Saved/
+unreal/Content/Developers/
+unreal/Config/DefaultInput.ini
+
+# Local runtime data
+.pipelineguard/
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+
+# IDE and OS
+.vs/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

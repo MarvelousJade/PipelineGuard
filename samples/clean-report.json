@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/validation-report-v1.schema.json",
+  "schemaVersion": "1.0",
+  "runId": "6b64374b-78be-4f5a-8e30-8658c7ef4f78",
+  "toolVersion": "0.1.0",
+  "startedUtc": "2026-07-16T14:00:00Z",
+  "completedUtc": "2026-07-16T14:00:00.184Z",
+  "project": "PipelineGuardFixtures",
+  "engineVersion": "5.6.0",
+  "profile": "generic-fixtures",
+  "scope": [
+    "/Game/PipelineGuardFixtures"
+  ],
+  "summary": {
+    "assetsScanned": 8,
+    "rulesRun": 4,
+    "errors": 0,
+    "warnings": 0,
+    "infos": 0,
+    "suppressed": 0,
+    "durationMs": 184
+  },
+  "findings": []
+}

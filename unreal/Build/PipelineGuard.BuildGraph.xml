@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph">
+  <Option Name="Project"
+          DefaultValue=""
+          Description="Absolute path to the host .uproject file." />
+  <Option Name="Report"
+          DefaultValue=""
+          Description="Required absolute report path; the repository wrapper supplies a writable location." />
+
+  <!-- The fixture target and RunUAT wrapper are intentionally Windows-only. -->
+  <Agent Name="PipelineGuard Win64" Type="Win64">
+    <Node Name="Compile PipelineGuard Editor">
+      <Compile Target="PipelineGuardHostEditor"
+               Platform="Win64"
+               Configuration="Development"
+               Project="$(Project)" />
+    </Node>
+
+    <Node Name="Validate PipelineGuard Content" Requires="Compile PipelineGuard Editor">
+      <Commandlet Name="PipelineGuard"
+                  Project="$(Project)"
+                  Arguments="-Report=&quot;$(Report)&quot;"
+                  ErrorLevel="1" />
+    </Node>
+  </Agent>
+
+  <Aggregate Name="PipelineGuard" Requires="Validate PipelineGuard Content" />
+</BuildGraph>

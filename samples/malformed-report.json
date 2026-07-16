@@ -1,0 +1,15 @@
+{
+  "$schema": "../schemas/validation-report-v1.schema.json",
+  "schemaVersion": "2.0",
+  "runId": "not-a-uuid",
+  "startedUtc": "later",
+  "completedUtc": "earlier",
+  "project": "",
+  "profile": "invalid profile with spaces",
+  "scope": [],
+  "summary": {
+    "assetsScanned": -1,
+    "errors": 1
+  },
+  "findings": "this must be an array"
+}

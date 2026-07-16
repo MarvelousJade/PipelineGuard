@@ -1,0 +1,19 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0.0",
+  "FriendlyName": "Pipeline Guard",
+  "Description": "Editor and command-line validation for generic Unreal Engine content pipelines.",
+  "Category": "Editor",
+  "CreatedBy": "Shaoyu Fan",
+  "EngineVersion": "5.6.0",
+  "CanContainContent": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "PipelineGuard",
+      "Type": "Editor",
+      "LoadingPhase": "Default"
+    }
+  ]
+}
