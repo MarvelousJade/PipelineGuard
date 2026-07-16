@@ -11,6 +11,7 @@ This record separates implemented and observed behavior from planned integration
 | .NET solution | `dotnet build PipelineGuard.sln --configuration Release --no-restore` | Seven projects; zero warnings and zero errors |
 | .NET tests | `dotnet test PipelineGuard.sln --configuration Release --no-build --no-restore` | 49 passed; zero failed or skipped |
 | NuGet audit | SDK 8.0.300 restore audit plus `dotnet list ... --vulnerable --include-transitive` | No vulnerable direct or transitive packages |
+| GitHub Actions | [Run 29515094223](https://github.com/MarvelousJade/PipelineGuard/actions/runs/29515094223) | Ubuntu and Windows jobs passed; test evidence uploaded |
 | Fixture contract | CLI `summary` on clean, error, and malformed fixtures | Exits `0`, `1`, and `2` respectively |
 | Fixture comparison | CLI `compare` from clean to error | Two added findings; exit `1` at error threshold |
 | Unreal compile | `PipelineGuardHostEditor Win64 Development` | Succeeded; UHT warnings treated as errors |
@@ -33,6 +34,6 @@ The MCP allowlist observed by the client was:
 
 - The standalone fixture host contains zero game-content assets. Unreal rule logic is verified with four synthetic automation tests.
 - The BlackWood repository was not present in the workspace, so no BlackWood-specific validator or asset finding is claimed.
-- The GitHub Actions Windows/Linux workflow is defined but was not executed on GitHub in this local verification.
+- GitHub Actions verifies the portable .NET layer; Unreal compile, automation, commandlet, and BuildGraph evidence remains local to the licensed UE 5.6.1 environment.
 - Horde deployment, Perforce, WPF, Entra, production hosting, and write-capable MCP operations are outside this release.
 - No production time saving, defect count, performance improvement, or user adoption number is claimed.

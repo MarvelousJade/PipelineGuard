@@ -1,5 +1,7 @@
 # PipelineGuard
 
+[![.NET portable checks](https://github.com/MarvelousJade/PipelineGuard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/MarvelousJade/PipelineGuard/actions/workflows/dotnet.yml)
+
 PipelineGuard is a portfolio-scale game-production tool that turns Unreal content checks into deterministic reports that people, CI jobs, and AI-assisted workflows can use safely.
 
 The intended end-to-end flow is:
@@ -18,6 +20,7 @@ The 2026-07-16 local release is verified, with the limits stated explicitly:
 
 - A seven-project .NET 8 solution builds in Release with zero warnings; 49 xUnit tests pass.
 - SDK 8.0.300 restore audits direct and transitive NuGet dependencies; no known vulnerable package is reported.
+- GitHub Actions passes the same audited build and test gates on Ubuntu and Windows.
 - The UE 5.6.1 editor target builds, all four synthetic Unreal automation tests pass, and the headless commandlet emits schema `1.0`.
 - The two-node BuildGraph compiles the editor target and runs the commandlet successfully.
 - Fixture outcomes are `0` clean, `1` findings, and `2` invalid contract.
