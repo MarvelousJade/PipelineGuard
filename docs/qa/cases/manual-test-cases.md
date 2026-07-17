@@ -142,7 +142,7 @@ Case revision: 1.0. Commands are run from the repository root. Unless a case say
 | 1 | GET `/openapi/v1.json`. | Status `200`; media is JSON and declares OpenAPI 3.1. |
 | 2 | Validate the full document. | Zero structural errors; every operation defines required responses and path parameters. |
 
-- Known defect: [PG-002](../defects/PG-002-incomplete-openapi-document.md).
+- Known defect: [PG-002](../bugs/PG-002-incomplete-openapi-document.md).
 
 ## MCP and safety
 
@@ -212,7 +212,7 @@ Case revision: 1.0. Commands are run from the repository root. Unless a case say
 | 3 | Export JSON and validate it with the CLI. | A schema v1 report is written and accepted. |
 | 4 | Double-click a finding. | Content Browser focuses and the asset editor opens the named asset. |
 
-- Known defect: [PG-001](../defects/PG-001-editor-filter-export-gap.md).
+- Known defect: [PG-001](../bugs/PG-001-editor-filter-export-gap.md).
 
 ### PG-UE-002 — Editor and commandlet produce stable parity
 

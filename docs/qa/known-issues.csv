@@ -1,0 +1,6 @@
+id,summary,severity,owner,status,target_build,last_verification
+"PG-001","Editor panel lacks documented filtering and JSON export controls","Medium","Unassigned","Open","Unscheduled; triage required","2026-07-16 source review at 641cf8b; UE runtime retest pending"
+"PG-002","Advertised OpenAPI 3.1 operations omit required response definitions","Medium","Unassigned","Open","Unscheduled; triage required","2026-07-16 source review at 641cf8b; validator/runtime retest pending"
+"PG-003","CLI labels a syntactically valid contract failure as invalid JSON","Low","Unassigned","Open","Unscheduled; triage required","2026-07-16 reproduced in PG-RUN-2026-07-16-01"
+"PG-004","Raw Unreal commandlet cannot honor a warning failure threshold","High","Unassigned","Open","Unscheduled; P1 triage required","2026-07-16 source review at 641cf8b; warning-only runtime retest pending"
+"PG-005","CLI lacks the traces and metrics claimed by architecture","Medium","Unassigned","Open","Unscheduled; triage required","2026-07-16 source review at 641cf8b; collector/runtime retest pending"

@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "script_version": "1.0",
+  "capture_id": "478c6382-aeb1-463e-8943-2f3ae2f1d8de",
+  "captured_utc": "2026-07-17T02:36:23.3062313+00:00",
+  "machine_label": "local-windows",
+  "source_commit": "641cf8ba0cda5a3e5750efd9ce979f789c4be550",
+  "source_branch": "main",
+  "source_dirty": false,
+  "os": "Microsoft Windows 10.0.26200",
+  "process_architecture": "X64",
+  "logical_processor_count": 12,
+  "powershell_version": "7.5.8",
+  "host_framework": ".NET 9.0.17",
+  "time_zone": "Eastern Standard Time",
+  "warmup_count": 5,
+  "measured_samples_per_warm_scenario": 30,
+  "scenario_order": [
+    "cli.summary.clean.session_first",
+    "cli.summary.clean.warm_cache_process",
+    "cli.summary.error.warm_cache_process"
+  ],
+  "cli_target_framework": "net8.0",
+  "cli_framework": {
+    "name": "Microsoft.NETCore.App",
+    "version": "8.0.0"
+  },
+  "cli_sha256": "fc7c088380e5e0d3c4dcab35504498d3acc0e25cb300589d97edce3636a4ed1a",
+  "cli_bytes": 153552,
+  "cli_last_write_utc": "2026-07-16T15:55:11.1791503Z",
+  "clean_fixture_sha256": "b217badcca7f60f5d3948cabeec1bc239c6a4b2dcd91ed48c2fd1ec03e50491e",
+  "clean_fixture_bytes": 579,
+  "error_fixture_sha256": "c4ab67fa51a77ac916ebc3286f39274b68b2176c8b8efb065d26d24d1661cbba",
+  "error_fixture_bytes": 1558,
+  "timing_boundary": "Before Process.Start through exit and complete stdout/stderr drain.",
+  "percentile_method": "Nearest rank: rank = ceil(percentile * n). No trimming.",
+  "binary_provenance": "Caller-supplied Release apphost; this capture script does not build or publish."
+}

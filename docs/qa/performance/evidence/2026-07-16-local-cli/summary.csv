@@ -1,0 +1,4 @@
+"scenario","valid","n","failures","minimum_ms","p50_ms","p95_ms","maximum_ms","mean_ms","sample_stddev_ms"
+"cli.summary.clean.session_first","True","1","0","389.261",,,"389.261","389.261",
+"cli.summary.clean.warm_cache_process","True","30","0","226.48","375.139","594.462","600.856","392.443","104.037"
+"cli.summary.error.warm_cache_process","True","30","0","342.864","456.5","578.131","614.291","463.639","70.966"

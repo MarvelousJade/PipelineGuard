@@ -1,0 +1,2 @@
+run_id,started_utc,revision,environment,suite_revision,passed,failed,blocked,not_run,decision,evidence
+"PG-RUN-2026-07-16-01","2026-07-17T02:10:00Z","641cf8ba0cda5a3e5750efd9ce979f789c4be550","PORTABLE-WIN (dependency deviation)","1.0","5","0","11","3","Blocked","executions/2026-07-16-portable-smoke.md"

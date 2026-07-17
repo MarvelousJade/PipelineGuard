@@ -6,11 +6,15 @@ This directory turns the project's verification claims into a reviewable QA life
 
 | Artifact | Purpose |
 | --- | --- |
-| [Test plan](test-plan.md) | Scope, risks, environments, cadence, and release criteria |
+| [Manual test plan](manual-test-plan.md) | Scope, risks, environments, cadence, and release criteria |
 | [Manual test cases](cases/manual-test-cases.md) | Reusable, project-specific procedures and expected results |
+| [Executed-case CSV](test-cases.csv) | Latest actual result/status/build snapshot for import or review |
 | [Regression suite](regression-suite.csv) | Requirement/risk-to-case traceability and execution cadence |
 | [Execution records](executions/) | Immutable actual results for one revision and environment |
-| [Defect register](defects/README.md) | Open and closed observations linked to cases and retests |
+| [Defect register](bugs/README.md) | Open and closed observations linked to cases and retests |
+| [Known issues](known-issues.csv) | Current ownership, status, target build, and last verification |
+| [Regression report](regression-report.md) | Retest/regression disposition and residual risk |
+| [Test summary](test-summary.md) | Totals, blockers, open defects, and recommendation |
 | [Jira/TestRail mapping](tooling/jira-testrail-mapping.md) | Import fields and lifecycle conventions without pretending a live instance was used |
 | [Performance plan](performance/performance-plan.md) | Repeatable scenarios, statistics, evidence, and baseline rules |
 
@@ -31,4 +35,4 @@ risk or requirement -> case ID -> execution record -> defect -> fix -> retest ->
 
 For a release candidate, copy the [execution template](executions/_template.md), execute the required rows in `regression-suite.csv`, attach sanitized evidence, update the append-only run ledger, and make the exit decision in the execution record.
 
-These artifacts are Jira/TestRail-compatible workflow examples. No live Jira or TestRail instance, project key, user, or execution history is claimed.
+These artifacts are Jira/TestRail-compatible workflow examples. No live Jira or TestRail instance, project key, user, or execution history is claimed. The current executed evidence is portable CLI work; it does not yet prove manual game-content regression, Unreal Insights profiling, multiplayer playtest coordination, or a production bug-tracker lifecycle.
