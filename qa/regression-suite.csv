@@ -1,0 +1,20 @@
+requirement_or_risk,case_id,component,priority,cadence,automation_reference,release_requirement
+"Clean report remains non-blocking",PG-CLI-001,CLI,P0,"PR; release","ReportAnalyzerTests; JsonReportSerializerTests",Portable
+"Failure threshold and display filter stay independent",PG-CLI-002,CLI,P0,"CLI change; release",ReportAnalyzerTests,Portable
+"Invalid report fails closed",PG-CLI-003,Contract/CLI,P0,"PR; release","StrictJsonContractTests; ValidationReportValidatorTests",Portable
+"Stable finding comparison detects regressions",PG-CLI-004,CLI,P1,"CLI or contract change; release",ReportAnalyzerTests,Portable
+"Usage and execution failures remain distinguishable",PG-CLI-005,CLI,P1,"CLI change; release","UnrealProcessStartInfoBuilderTests (partial)",Portable
+"Loopback API readiness",PG-API-001,API,P1,"API change; release",None,Portable
+"Accepted reports persist without mutation",PG-API-002,API/SQLite,P0,"API or store change; release",None,Portable
+"Duplicate IDs do not overwrite evidence",PG-API-003,API/SQLite,P0,"API or store change; release",None,Portable
+"Rejected input is not persisted",PG-API-004,API/Contract,P0,"API or contract change; release",ValidationReportValidatorTests (partial),Portable
+"API pagination and uploads are bounded",PG-API-005,API/Security,P0,"API change; release",None,Portable
+"Advertised API contract validates",PG-API-006,API/OpenAPI,P2,"API route change; release",None,Portable
+"MCP exposes exactly four read-only tools",PG-MCP-001,MCP/Security,P0,"MCP change; release",PipelineGuard.Mcp.Smoke,Portable
+"MCP results match accepted reports",PG-MCP-002,MCP/API,P1,"MCP or contract change; release",PipelineGuard.Mcp.Smoke (partial),Portable
+"MCP invalid inputs fail closed",PG-MCP-003,MCP/Security,P0,"MCP change; release",Unit tests (partial),Portable
+"Telemetry correlates operations without sensitive metric tags",PG-OBS-001,Observability,P1,"Telemetry change; release",Manual inspection,Portable
+"Editor exposes documented run filter export and navigation",PG-UE-001,Unreal Editor,P2,"Editor UI change; UE release",None,UE56
+"Editor and commandlet findings remain identical",PG-UE-002,Unreal Runner,P1,"Rule runner change; UE release",Unreal automation (partial),UE56
+"Headless exit and report failures are deterministic",PG-UE-003,Unreal/CLI,P0,"Runner or orchestration change; UE release","Unreal automation; UnrealProcessStartInfoBuilderTests (partial)",UE56
+"Performance evidence is repeatable and correctness-gated",PG-PERF-001,Performance,P2,"Release; performance-sensitive change",Measure-PipelineGuardPerformance.ps1,Portable

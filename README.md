@@ -149,6 +149,7 @@ PipelineGuard/
 |-- unreal/                      editor-only Unreal plugin and fixture host
 |-- schemas/                     versioned JSON report contract
 |-- samples/                     clean, failing, and contract-invalid reports
+|-- qa/                          manual cases, executions, defects, regression, and performance evidence
 |-- docs/                        architecture, safety, schema, demo, and support
 `-- .github/workflows/           portable Windows/Linux verification
 ```
@@ -169,6 +170,7 @@ MCP inspection is read-only. An optional run tool, if implemented later, is disa
 - [Troubleshooting](docs/troubleshooting.md)
 - [Demo plan](docs/demo-plan.md)
 - [Verification record](docs/verification.md)
+- [Manual QA and regression evidence](qa/README.md)
 
 ## Security and license
 
@@ -179,4 +181,4 @@ open-source licensed.
 
 ## Evidence before claims
 
-Only claims listed in the [verification record](docs/verification.md) are release evidence. BlackWood integration, production performance, defects found, and time saved remain unverified and must not be claimed. Future releases should update the record with their actual tests, assets, findings, and environment.
+Only claims listed in the [verification record](docs/verification.md) or a completed [QA execution record](qa/executions/) are release evidence. Case definitions and automation references are not passes. Performance captures are local observations until the [baseline rules](qa/performance/performance-plan.md) are satisfied. BlackWood integration, production performance, and time saved remain unverified and must not be claimed. Future releases should update the records with their actual tests, assets, findings, and environment.
