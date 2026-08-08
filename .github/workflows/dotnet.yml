@@ -8,7 +8,11 @@ on:
       - "tools/**"
       - "schemas/**"
       - "samples/**"
+      - "dashboard/**"
+      - "deploy/**"
       - "PipelineGuard.sln"
+      - "PipelineGuard.CrashIntelligence.sln"
+      - "docker-compose.yml"
       - "Directory.Build.*"
       - "Directory.Packages.props"
       - "global.json"
@@ -20,7 +24,11 @@ on:
       - "tools/**"
       - "schemas/**"
       - "samples/**"
+      - "dashboard/**"
+      - "deploy/**"
       - "PipelineGuard.sln"
+      - "PipelineGuard.CrashIntelligence.sln"
+      - "docker-compose.yml"
       - "Directory.Build.*"
       - "Directory.Packages.props"
       - "global.json"
@@ -52,16 +60,24 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore PipelineGuard.sln -p:NuGetAudit=true -p:NuGetAuditMode=all -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
+        run: |
+          dotnet restore PipelineGuard.sln -p:NuGetAudit=true -p:NuGetAuditMode=all -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
+          dotnet restore PipelineGuard.CrashIntelligence.sln -p:NuGetAudit=true -p:NuGetAuditMode=all -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
 
       - name: Report transitive package vulnerabilities
-        run: dotnet list PipelineGuard.sln package --vulnerable --include-transitive
+        run: |
+          dotnet list PipelineGuard.sln package --vulnerable --include-transitive
+          dotnet list PipelineGuard.CrashIntelligence.sln package --vulnerable --include-transitive
 
       - name: Build
-        run: dotnet build PipelineGuard.sln --configuration Release --no-restore --warnaserror
+        run: |
+          dotnet build PipelineGuard.sln --configuration Release --no-restore --warnaserror
+          dotnet build PipelineGuard.CrashIntelligence.sln --configuration Release --no-restore --warnaserror
 
       - name: Test
-        run: dotnet test PipelineGuard.sln --configuration Release --no-build --logger "trx;LogFileName=tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
+        run: |
+          dotnet test PipelineGuard.sln --configuration Release --no-build --logger "trx;LogFileName=tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
+          dotnet test PipelineGuard.CrashIntelligence.sln --configuration Release --no-build --logger "trx;LogFileName=crash-tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
 
       - name: Upload test evidence
         if: always()

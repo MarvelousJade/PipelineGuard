@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "crashId": "018f6f4d-a5be-7ad3-bd52-8391aef26d8a",
+  "occurredAtUtc": "2026-07-16T12:00:00Z",
+  "project": "PipelineGuardHost",
+  "build": {
+    "version": "1.4.27",
+    "branch": "main",
+    "changelist": 10427
+  },
+  "platform": "Linux",
+  "errorType": "AccessViolation",
+  "errorMessage": "Unhandled exception: EXCEPTION_ACCESS_VIOLATION reading address 0x18",
+  "stackTrace": [
+    "0x00007ff61234abcd UnrealEditor-Game.so!UInventoryComponent::RemoveItem(FGuid const&) [/workspace/Game/Inventory.cpp:418]",
+    "0x00007ff61234abce UnrealEditor-Game.so!APlayerController::Tick(float) [/workspace/Game/Player.cpp:91]"
+  ],
+  "metadata": {
+    "configuration": "Development",
+    "engineVersion": "5.6.1"
+  }
+}
