@@ -1,0 +1,14 @@
+**/bin
+**/obj
+.git
+.github
+.agents
+artifacts
+TestResults
+unreal/Binaries
+unreal/DerivedDataCache
+unreal/Intermediate
+unreal/Saved
+dashboard/node_modules
+dashboard/dist
+*.db

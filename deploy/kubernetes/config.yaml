@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crash-intelligence-config
+  namespace: pipelineguard
+data:
+  Elasticsearch__Url: http://elasticsearch:9200
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: crash-intelligence-secrets
+  namespace: pipelineguard
+type: Opaque
+stringData:
+  RabbitMq__Uri: amqp://pipelineguard:replace-me@rabbitmq:5672/

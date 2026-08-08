@@ -1,0 +1,84 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Accepted crash reports",
+      "id": 1,
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(pipelineguard_crash_ingestion_total{outcome=\"accepted\"})", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Unique indexed crashes",
+      "id": 2,
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(pipelineguard_crash_processed_total{outcome=\"created\"})", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Duplicate deliveries suppressed",
+      "id": 3,
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(pipelineguard_crash_processed_total{outcome=\"duplicate\"})", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Dead-letter messages",
+      "id": 4,
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } }, "overrides": [] },
+      "targets": [{ "expr": "rabbitmq_queue_messages{queue=\"pipelineguard.crash.dead-letter\"}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Crash processing outcomes",
+      "id": 5,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by (outcome) (rate(pipelineguard_crash_processed_total[5m]))", "legendFormat": "{{outcome}}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Queue depth and consumers",
+      "id": 6,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rabbitmq_queue_messages{queue=~\"pipelineguard.crash.*\"}", "legendFormat": "{{queue}} messages", "refId": "A" },
+        { "expr": "rabbitmq_queue_consumers{queue=\"pipelineguard.crash.processing\"}", "legendFormat": "workers", "refId": "B" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Ingestion p95",
+      "id": 7,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 18 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le) (rate(pipelineguard_crash_ingestion_duration_milliseconds_bucket[5m])))", "legendFormat": "p95 milliseconds", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Processing p95",
+      "id": 8,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 18 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le) (rate(pipelineguard_crash_processing_duration_milliseconds_bucket[5m])))", "legendFormat": "p95 milliseconds", "refId": "A" }]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 40,
+  "tags": ["pipelineguard", "crash-intelligence"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "PipelineGuard Crash Intelligence",
+  "uid": "pipelineguard-crashes",
+  "version": 1
+}

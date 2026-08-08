@@ -1,0 +1,26 @@
+groups:
+  - name: pipelineguard-crash-intelligence
+    rules:
+      - alert: PipelineGuardCrashIngestionFailures
+        expr: sum(rate(pipelineguard_crash_ingestion_total{outcome!="accepted"}[5m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Crash reports are being rejected or RabbitMQ is unavailable
+
+      - alert: PipelineGuardCrashDeadLetters
+        expr: rabbitmq_queue_messages{queue="pipelineguard.crash.dead-letter"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Crash reports entered the dead-letter queue
+
+      - alert: PipelineGuardCrashWorkerUnavailable
+        expr: rabbitmq_queue_messages{queue="pipelineguard.crash.processing"} > 0 and rabbitmq_queue_consumers{queue="pipelineguard.crash.processing"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Queued crash reports have no active worker

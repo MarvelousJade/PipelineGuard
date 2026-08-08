@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crash-dashboard
+  namespace: pipelineguard
+  labels: { app: crash-dashboard }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: crash-dashboard }
+  template:
+    metadata:
+      labels: { app: crash-dashboard }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: dashboard
+          image: ghcr.io/marvelousjade/pipelineguard-crash-dashboard:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: 8080 }
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits: { cpu: 200m, memory: 128Mi }
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 20
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: ["ALL"] }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crash-dashboard
+  namespace: pipelineguard
+spec:
+  selector: { app: crash-dashboard }
+  ports:
+    - { name: http, port: 80, targetPort: http }

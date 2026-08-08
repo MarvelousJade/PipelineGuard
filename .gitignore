@@ -5,6 +5,9 @@
 *.suo
 TestResults/
 artifacts/
+**/node_modules/
+**/dist/
+*.tsbuildinfo
 
 # Unreal Engine
 unreal/Binaries/

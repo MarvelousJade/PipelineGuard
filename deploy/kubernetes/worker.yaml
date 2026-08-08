@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crash-worker
+  namespace: pipelineguard
+  labels: { app: crash-worker }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: crash-worker }
+  template:
+    metadata:
+      labels: { app: crash-worker }
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: worker
+          image: ghcr.io/marvelousjade/pipelineguard-crash-worker:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: health, containerPort: 8080 }
+          envFrom:
+            - configMapRef: { name: crash-intelligence-config }
+            - secretRef: { name: crash-intelligence-secrets }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: "1", memory: 512Mi }
+          readinessProbe:
+            httpGet: { path: /health/ready, port: health }
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /health/live, port: health }
+            periodSeconds: 20
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: ["ALL"] }
+            readOnlyRootFilesystem: true
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: crash-worker
+  namespace: pipelineguard
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: crash-worker }
