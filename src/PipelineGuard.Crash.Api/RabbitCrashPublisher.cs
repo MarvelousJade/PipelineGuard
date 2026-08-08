@@ -23,6 +23,25 @@ public sealed class RabbitCrashPublisher : IHostedService, IDisposable
 
     public bool IsReady => _connection?.IsOpen == true && _channel?.IsOpen == true;
 
+    public async Task<bool> EnsureReadyAsync(CancellationToken cancellationToken)
+    {
+        if (IsReady)
+        {
+            return true;
+        }
+
+        try
+        {
+            await EnsureConnectedAsync(cancellationToken).ConfigureAwait(false);
+            return IsReady;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _logger.LogDebug(exception, "RabbitMQ readiness reconnect attempt failed");
+            return false;
+        }
+    }
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         try

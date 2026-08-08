@@ -58,6 +58,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
       RabbitMq__Uri: amqp://${RABBITMQ_USER:-pipelineguard}:${RABBITMQ_PASSWORD:-pipelineguard-local}@rabbitmq:5672/
       Elasticsearch__Url: http://elasticsearch:9200
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
@@ -83,6 +84,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
       RabbitMq__Uri: amqp://${RABBITMQ_USER:-pipelineguard}:${RABBITMQ_PASSWORD:-pipelineguard-local}@rabbitmq:5672/
       Elasticsearch__Url: http://elasticsearch:9200
       Elasticsearch__NumberOfReplicas: "0"

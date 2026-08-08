@@ -8,12 +8,12 @@ public sealed class RabbitPublisherHealthCheck : IHealthCheck
 
     public RabbitPublisherHealthCheck(RabbitCrashPublisher publisher) => _publisher = publisher;
 
-    public Task<HealthCheckResult> CheckHealthAsync(
+    public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(_publisher.IsReady
+        await _publisher.EnsureReadyAsync(cancellationToken).ConfigureAwait(false)
             ? HealthCheckResult.Healthy()
-            : HealthCheckResult.Unhealthy("RabbitMQ publisher is disconnected."));
+            : HealthCheckResult.Unhealthy("RabbitMQ publisher is disconnected.");
 }
 
 public sealed class ElasticsearchHealthCheck : IHealthCheck
