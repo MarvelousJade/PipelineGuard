@@ -23,7 +23,7 @@ npm run build --prefix dashboard
 
 - Crash solution build: 4 projects, 0 warnings, 0 errors.
 - Crash unit tests: 9 passed, 0 failed, including 100 normalized address/line variants forming one fingerprint, duplicate delivery, and transient index failure/retry.
-- Crash-solution coverage capture: 59.25% line and 57.59% branch. This is an initial unit-test baseline, not a coverage target or infrastructure coverage claim.
+- Crash-solution coverage capture: 59.00% line and 57.59% branch. This is an initial unit-test baseline, not a coverage target or infrastructure coverage claim.
 - NuGet vulnerability report: no known vulnerable direct or transitive packages from the configured source.
 - Dashboard: TypeScript and Vite production build passed; npm audit reported 0 vulnerabilities.
 - Existing portable suite was rerun separately: 49 passed, 0 failed. Repository portable total observed in this environment: 58 tests.

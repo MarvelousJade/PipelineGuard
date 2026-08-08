@@ -5,6 +5,7 @@ metadata:
   namespace: pipelineguard
 data:
   Elasticsearch__Url: http://elasticsearch:9200
+  Elasticsearch__NumberOfReplicas: "1"
   OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
 ---
 apiVersion: v1

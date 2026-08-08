@@ -33,7 +33,7 @@ The fixture host intentionally has zero project assets. Generic rule behavior is
 
 ## Crash Intelligence status
 
-The crash subsystem includes the API, RabbitMQ worker, deterministic fingerprinting, Elasticsearch search/aggregation, React dashboard, OpenTelemetry/Grafana provisioning, Docker Compose, optional Kubernetes manifests, and a 10,000-report verification harness. Its portable baseline currently adds 9 passing tests (58 repository portable tests observed locally) and 59.25% line coverage for the new crash solution. Live 10,000-report, replay, latency, and recovery numbers are deliberately not claimed until a Compose benchmark capture is committed. See the [crash evidence record](docs/crash-intelligence/evidence/2026-08-08-portable-tests.md).
+The crash subsystem includes the API, RabbitMQ worker, deterministic fingerprinting, Elasticsearch search/aggregation, React dashboard, OpenTelemetry/Grafana provisioning, Docker Compose, optional Kubernetes manifests, and a 10,000-report verification harness. Its portable baseline currently adds 9 passing tests (58 repository portable tests observed locally) and 59.00% line coverage for the new crash solution. Live 10,000-report, replay, latency, and recovery numbers are deliberately not claimed until a Compose benchmark capture is committed. See the [crash evidence record](docs/crash-intelligence/evidence/2026-08-08-portable-tests.md).
 
 ## Project boundaries
 

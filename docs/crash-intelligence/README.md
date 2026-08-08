@@ -125,4 +125,4 @@ Metric dimensions are bounded to outcome or reason. Crash IDs, fingerprints, pro
 
 ## Kubernetes
 
-[`deploy/kubernetes`](../../deploy/kubernetes/) contains an optional Kustomize base with two API, worker, and dashboard replicas, probes, resource limits, non-root containers, and disruption budgets. RabbitMQ and Elasticsearch are external so production deployments can use their operators or managed equivalents.
+[`deploy/kubernetes`](../../deploy/kubernetes/) contains an optional Kustomize base with two API, worker, and dashboard replicas, probes, resource limits, non-root containers, disruption budgets, and one Elasticsearch index replica. RabbitMQ and Elasticsearch are external so production deployments can use their operators or managed equivalents.

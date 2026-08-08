@@ -16,4 +16,6 @@ public sealed class ElasticsearchOptions
     public string Url { get; init; } = "http://localhost:9200";
 
     public string CrashIndex { get; init; } = "pipelineguard-crashes-v1";
+
+    public int NumberOfReplicas { get; init; }
 }

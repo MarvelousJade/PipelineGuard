@@ -1,4 +1,5 @@
 using System.Net;
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -40,11 +41,11 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
                 return;
             }
 
-            const string mapping = """
+            const string mappingTemplate = """
             {
               "settings": {
                 "number_of_shards": 1,
-                "number_of_replicas": 0,
+                "number_of_replicas": __REPLICA_COUNT__,
                 "refresh_interval": "1s"
               },
               "mappings": {
@@ -73,6 +74,10 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
               }
             }
             """;
+            string mapping = mappingTemplate.Replace(
+                "__REPLICA_COUNT__",
+                Math.Clamp(_options.NumberOfReplicas, 0, 5).ToString(CultureInfo.InvariantCulture),
+                StringComparison.Ordinal);
             using var request = new HttpRequestMessage(HttpMethod.Put, _options.CrashIndex)
             {
                 Content = new StringContent(mapping, Encoding.UTF8, "application/json")
