@@ -12,6 +12,8 @@ The intended end-to-end flow is:
 4. OpenTelemetry makes the .NET workflow observable.
 5. A constrained MCP server lets an AI agent inspect results without arbitrary command or filesystem access.
 
+The repository now also contains [PipelineGuard Crash Intelligence](docs/crash-intelligence/README.md): an event-driven subsystem that ingests Unreal crashes through ASP.NET Core, processes them through RabbitMQ workers, groups normalized stacks in Elasticsearch, and presents the results in a React/Grafana operations surface.
+
 The portable .NET layer and sample reports do not require Unreal Engine or BlackWood. The Unreal plugin requires a compatible Unreal Engine 5.6 installation. Project-specific BlackWood rules require the BlackWood repository and must be defined only after its real data contracts have been inspected.
 
 ## Verified release
@@ -28,6 +30,10 @@ The 2026-07-16 local release is verified, with the limits stated explicitly:
 - An official MCP SDK client discovered exactly four read-only tools and successfully called both run-list and run-summary tools.
 
 The fixture host intentionally has zero project assets. Generic rule behavior is covered by synthetic tests; BlackWood integration and production time-saved claims are not made. See the [verification record](docs/verification.md).
+
+## Crash Intelligence status
+
+The crash subsystem includes the API, RabbitMQ worker, deterministic fingerprinting, Elasticsearch search/aggregation, React dashboard, OpenTelemetry/Grafana provisioning, Docker Compose, optional Kubernetes manifests, and a 10,000-report verification harness. Its portable baseline currently adds 9 passing tests (58 repository portable tests observed locally) and 59.25% line coverage for the new crash solution. Live 10,000-report, replay, latency, and recovery numbers are deliberately not claimed until a Compose benchmark capture is committed. See the [crash evidence record](docs/crash-intelligence/evidence/2026-08-08-portable-tests.md).
 
 ## Project boundaries
 
@@ -104,6 +110,20 @@ Expected process results:
 
 The raw Unreal commandlet additionally uses exit `4` when validation ran but its report could not be written. The .NET CLI maps that condition to its public execution-failure exit `3`.
 
+### Crash Intelligence stack
+
+On Linux with Docker Compose v2, start RabbitMQ, Elasticsearch, the crash API and worker, dashboard, and monitoring stack:
+
+```console
+cp .env.example .env
+# Replace the development credentials in .env.
+docker compose up --build -d
+curl http://127.0.0.1:5080/health/ready
+curl -i -X POST http://127.0.0.1:5080/api/v1/crashes -H "Content-Type: application/json" --data-binary "@samples/crash-report.json"
+```
+
+Open the crash dashboard at <http://127.0.0.1:3000>, generated OpenAPI at <http://127.0.0.1:5080/openapi/v1.json>, and Grafana at <http://127.0.0.1:3001>. Full operating, replay, worker-recovery, and 10,000-report benchmark instructions are in the [Crash Intelligence guide](docs/crash-intelligence/README.md).
+
 ### Local report service
 
 Start the loopback-only API in one terminal:
@@ -143,13 +163,15 @@ verification:
 
 ```text
 PipelineGuard/
-|-- src/                         .NET contracts, CLI, API, and MCP server
+|-- src/                         validation and crash-intelligence .NET services
 |-- tests/                       portable unit and integration tests
+|-- dashboard/                   React crash-group operations dashboard
+|-- deploy/                      observability and optional Kubernetes resources
 |-- tools/                       official-SDK MCP protocol smoke client
 |-- unreal/                      editor-only Unreal plugin and fixture host
-|-- schemas/                     versioned JSON report contract
-|-- samples/                     clean, failing, and contract-invalid reports
-|-- docs/                        architecture, support, and manual QA/regression evidence
+|-- schemas/                     validation and crash-report JSON contracts
+|-- samples/                     validation and crash-report fixtures
+|-- docs/                        architecture, operations, evidence, and QA records
 `-- .github/workflows/           portable Windows/Linux verification
 ```
 
@@ -170,6 +192,7 @@ MCP inspection is read-only. An optional run tool, if implemented later, is disa
 - [Demo plan](docs/demo-plan.md)
 - [Verification record](docs/verification.md)
 - [Manual QA and regression evidence](docs/qa/README.md)
+- [Crash Intelligence architecture, operations, and benchmark](docs/crash-intelligence/README.md)
 
 ## Security and license
 

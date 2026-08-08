@@ -121,6 +121,12 @@ Compile the plugin in a clean UE 5.6 C++ editor project. Add passing and failing
 
 Inspect actual project data contracts before defining item, dialogue, soft-reference, or physical-surface rules. Record the real assets scanned, rules run, findings, and elapsed time. Intentional exceptions require a reason and must remain visible in the report.
 
+## Crash Intelligence extension
+
+Crash Intelligence is a separate event-driven deployment boundary within this repository. Its ASP.NET ingestion API publishes confirmed persistent events to a RabbitMQ quorum queue; competing workers normalize call stacks and create immutable Elasticsearch documents using `crashId` as the idempotency key. Search-time aggregations derive group counts and affected builds without a mutable distributed counter. OpenTelemetry, Prometheus, Grafana alerts, health probes, a React dashboard, and dead-letter routing form the operational boundary.
+
+The extension does not add RabbitMQ or Elasticsearch dependencies to the original validation contracts, CLI, local SQLite API, or MCP server. See [crash-intelligence/README.md](crash-intelligence/README.md) for the detailed topology and processing guarantees.
+
 ## Deliberate non-goals
 
 The first release includes a local Windows-only BuildGraph compile-and-commandlet

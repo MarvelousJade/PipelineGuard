@@ -8,6 +8,7 @@ on:
       - "tools/**"
       - "schemas/**"
       - "samples/**"
+      - "scripts/crash-intelligence/**"
       - "dashboard/**"
       - "deploy/**"
       - "PipelineGuard.sln"
@@ -24,6 +25,7 @@ on:
       - "tools/**"
       - "schemas/**"
       - "samples/**"
+      - "scripts/crash-intelligence/**"
       - "dashboard/**"
       - "deploy/**"
       - "PipelineGuard.sln"
@@ -91,6 +93,7 @@ jobs:
           npm ci --prefix dashboard
           npm audit --prefix dashboard --audit-level=high
           npm run build --prefix dashboard
+          node --check scripts/crash-intelligence/verify.mjs
 
       - name: Upload test evidence
         if: always()

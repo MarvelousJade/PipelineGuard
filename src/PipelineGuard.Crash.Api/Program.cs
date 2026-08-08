@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -25,6 +26,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -138,12 +140,7 @@ app.MapPost("/api/v1/crashes", async (
             validatedReport.Build.Version);
         return Results.Accepted(
             $"/api/v1/crashes/{validatedReport.CrashId:D}",
-            new
-            {
-                crashId = validatedReport.CrashId,
-                status = "queued",
-                idempotencyKey = validatedReport.CrashId
-            });
+            new CrashAcceptedResponse(validatedReport.CrashId, "queued", validatedReport.CrashId));
     }
     catch (CrashReportValidationException exception)
     {
@@ -169,7 +166,7 @@ app.MapPost("/api/v1/crashes", async (
 .WithSummary("Queue an Unreal crash report")
 .WithDescription("Validates a v1 report, publishes a persistent RabbitMQ message, waits for publisher confirmation, and returns 202. crashId is the idempotency key.")
 .Accepts<UnrealCrashReport>("application/json")
-.Produces(StatusCodes.Status202Accepted)
+.Produces<CrashAcceptedResponse>(StatusCodes.Status202Accepted)
 .ProducesValidationProblem()
 .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
@@ -183,7 +180,7 @@ app.MapGet("/api/v1/crashes/{crashId:guid}", async (
         CrashDocument? crash = await search.GetCrashAsync(crashId, cancellationToken).ConfigureAwait(false);
         return crash is null ? Results.NotFound(new { error = "crash_not_found" }) : Results.Ok(crash);
     }
-    catch (CrashSearchUnavailableException exception)
+    catch (Exception exception) when (exception is CrashSearchUnavailableException or HttpRequestException)
     {
         return SearchUnavailable(exception);
     }
@@ -213,7 +210,7 @@ app.MapGet("/api/v1/crash-groups", async (
         CrashApiTelemetry.RecordSearch("success", stopwatch.Elapsed.TotalMilliseconds);
         return Results.Ok(result);
     }
-    catch (CrashSearchUnavailableException exception)
+    catch (Exception exception) when (exception is CrashSearchUnavailableException or HttpRequestException)
     {
         CrashApiTelemetry.RecordSearch("failure", stopwatch.Elapsed.TotalMilliseconds);
         return SearchUnavailable(exception);
@@ -251,7 +248,7 @@ app.MapPut("/api/v1/crash-groups/{fingerprint}/resolution", async (
             cancellationToken).ConfigureAwait(false);
         return Results.Ok(resolution);
     }
-    catch (CrashSearchUnavailableException exception)
+    catch (Exception exception) when (exception is CrashSearchUnavailableException or HttpRequestException)
     {
         return SearchUnavailable(exception);
     }
@@ -265,7 +262,7 @@ app.MapPut("/api/v1/crash-groups/{fingerprint}/resolution", async (
 
 await app.RunAsync().ConfigureAwait(false);
 
-static IResult SearchUnavailable(CrashSearchUnavailableException exception) => Results.Problem(
+static IResult SearchUnavailable(Exception exception) => Results.Problem(
     statusCode: StatusCodes.Status503ServiceUnavailable,
     title: "Crash search is temporarily unavailable.",
     detail: exception.Message,

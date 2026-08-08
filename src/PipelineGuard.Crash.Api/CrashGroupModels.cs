@@ -1,5 +1,7 @@
 namespace PipelineGuard.Crash.Api;
 
+public sealed record CrashAcceptedResponse(Guid CrashId, string Status, Guid IdempotencyKey);
+
 public sealed record CrashGroupSearchRequest(
     string? Query,
     string? Project,

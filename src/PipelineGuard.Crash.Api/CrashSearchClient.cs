@@ -282,11 +282,20 @@ public sealed class CrashSearchClient
         };
         using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)
             .ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.BadRequest)
+        if (response.IsSuccessStatusCode)
         {
-            await EnsureSuccessAsync(response, "create the resolution index", cancellationToken)
-                .ConfigureAwait(false);
+            return;
         }
+
+        string details = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        if (response.StatusCode == HttpStatusCode.BadRequest &&
+            details.Contains("resource_already_exists_exception", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        throw new CrashSearchUnavailableException(
+            $"Elasticsearch could not create the resolution index (HTTP {(int)response.StatusCode}): {details}");
     }
 
     private static JsonArray BuildFilters(CrashGroupSearchRequest request)

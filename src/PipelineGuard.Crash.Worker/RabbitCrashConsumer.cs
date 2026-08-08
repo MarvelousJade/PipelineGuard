@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using PipelineGuard.CrashIntelligence;
 using RabbitMQ.Client;
@@ -10,7 +11,8 @@ public sealed class RabbitCrashConsumer : BackgroundService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
     };
 
     private readonly RabbitMqOptions _options;
@@ -135,10 +137,25 @@ public sealed class RabbitCrashConsumer : BackgroundService
         catch (Exception exception)
         {
             WorkerTelemetry.RecordDeliveryFailure("transient");
+            int deliveryCount = GetDeliveryCount(args.BasicProperties.Headers);
+            TimeSpan retryDelay = TimeSpan.FromMilliseconds(
+                Math.Min(500 * Math.Pow(2, deliveryCount), 8_000));
             _logger.LogWarning(
                 exception,
-                "Transient processing failure for message {MessageId}; delivery will be retried",
-                messageId);
+                "Transient processing failure for message {MessageId}; delivery {DeliveryCount} will retry after {RetryDelayMs} ms",
+                messageId,
+                deliveryCount + 1,
+                retryDelay.TotalMilliseconds);
+            try
+            {
+                await Task.Delay(retryDelay, stoppingToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                SafeNack(channel, args.DeliveryTag, requeue: true);
+                return;
+            }
+
             SafeNack(channel, args.DeliveryTag, requeue: true);
         }
     }
@@ -177,6 +194,23 @@ public sealed class RabbitCrashConsumer : BackgroundService
             messageId,
             reason);
         SafeNack(channel, deliveryTag, requeue: false);
+    }
+
+    private static int GetDeliveryCount(IDictionary<string, object>? headers)
+    {
+        if (headers is null || !headers.TryGetValue("x-delivery-count", out object? value))
+        {
+            return 0;
+        }
+
+        return value switch
+        {
+            byte count => count,
+            short count => count,
+            int count => count,
+            long count when count <= int.MaxValue => (int)count,
+            _ => 0
+        };
     }
 
     private static void SafeNack(IModel channel, ulong deliveryTag, bool requeue)
