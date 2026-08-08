@@ -117,6 +117,10 @@ The default run:
 
 Use `--skip-recovery` only when the harness cannot control Docker. Run against clean, otherwise idle infrastructure and preserve the generated JSON before making performance or reliability claims.
 
+### Recorded local result
+
+The 2026-08-08 Compose run accepted 10,000 reports, grouped 100% of equivalent variants into the intended 100 groups, replayed all messages with zero duplicate Elasticsearch effects, measured 15.33 ms search p95, and processed 100 reports queued during a worker stop within 9.43 seconds of restart. Ingestion p95 was 3.45 seconds at concurrency 32, so publisher-confirm throughput remains an optimization target rather than a low-latency claim. See the [benchmark summary](evidence/2026-08-08-compose-benchmark.md) and [raw JSON](evidence/benchmark-2026-08-08t13-44-55-844z.json).
+
 ## Monitoring
 
 OpenTelemetry traces, metrics, and logs flow through the collector. Prometheus scrapes the collector and RabbitMQ. Provisioned Grafana resources include processing-outcome, queue-depth, p95-latency, duplicate-suppression, and dead-letter panels, plus alerts for a non-empty dead-letter queue and queued work with no consumer.

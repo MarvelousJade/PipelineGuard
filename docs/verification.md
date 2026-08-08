@@ -23,6 +23,23 @@ This record separates implemented and observed behavior from planned integration
 | OpenTelemetry | Console capture after error-fixture ingest | Correlated structured log and trace IDs; run counter, finding counter, and ingest histogram emitted |
 | MCP protocol | Official C# SDK stdio client | Four tools discovered; list-runs and get-summary calls succeeded |
 
+## Crash Intelligence extension — 2026-08-08
+
+A Linux/Compose verification used .NET SDK 8.0.423, Docker Engine 27.5.1, Docker Compose 2.33.1, Elasticsearch 8.17.4, RabbitMQ 3.13, and one crash worker.
+
+| Surface | Verification | Result |
+| --- | --- | --- |
+| Crash solution | Release build and xUnit execution | Four projects built with zero warnings/errors; 9 passed |
+| Dashboard | `npm ci`, audit, and production build | Build passed; zero reported vulnerabilities |
+| Ingestion | 10,000 generated reports at concurrency 32 | 10,000 accepted; p95 3,454.11 ms |
+| Fingerprinting | 100 semantic groups with stack variants | 10,000 / 10,000 correctly grouped |
+| Idempotency | Replay all 10,000 messages | Zero duplicate Elasticsearch effects |
+| Search | 100 filtered group searches | p95 15.33 ms |
+| Recovery | Stop worker, queue 100 reports, restart | Expected count reached in 9.43 seconds |
+| Final health | API/worker readiness and RabbitMQ queue | Healthy; one consumer; zero ready/unacknowledged messages |
+
+The [benchmark summary](crash-intelligence/evidence/2026-08-08-compose-benchmark.md) documents scope and limitations; the linked JSON is the raw harness output. This is a single local result, not an SLA. Dead-letter routing and multi-node availability were not exercised by this benchmark. Ingestion publisher-confirm serialization remains an observed performance target.
+
 The MCP allowlist observed by the client was:
 
 1. `validation_get_remediation`

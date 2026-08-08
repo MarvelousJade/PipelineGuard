@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0",
+  "startedAtUtc": "2026-08-08T13:27:46.778Z",
+  "api": "http://127.0.0.1:5080",
+  "project": "CrashBenchmark-20260808132746",
+  "requestedReports": 10000,
+  "semanticGroups": 100,
+  "concurrency": 32,
+  "results": {
+    "ingestion": {
+      "accepted": 10000,
+      "p50Milliseconds": 2055.14,
+      "p95Milliseconds": 3454.11,
+      "p99Milliseconds": 4478.52
+    },
+    "grouping": {
+      "expectedGroups": 100,
+      "actualGroups": 100,
+      "correctlyGroupedReports": 10000,
+      "equivalentStackGroupingPercent": 100
+    },
+    "replay": {
+      "messagesReplayed": 10000,
+      "indexedDocuments": 10000,
+      "duplicateEffects": 0,
+      "zeroDuplicateRecords": true
+    },
+    "search": {
+      "samples": 100,
+      "p50Milliseconds": 12.04,
+      "p95Milliseconds": 15.33,
+      "p99Milliseconds": 18.94
+    },
+    "workerRecovery": {
+      "reportsQueuedWhileStopped": 100,
+      "recoveryTimeMilliseconds": 9429.78,
+      "recoveryTimeSeconds": 9.43,
+      "indexedDocumentsAfterRecovery": 10100
+    }
+  },
+  "completedAtUtc": "2026-08-08T13:44:55.844Z"
+}
