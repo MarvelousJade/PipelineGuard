@@ -2,205 +2,143 @@
 
 [![.NET portable checks](https://github.com/MarvelousJade/PipelineGuard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/MarvelousJade/PipelineGuard/actions/workflows/dotnet.yml)
 
-PipelineGuard is a portfolio-scale game-production tool that turns Unreal content checks into deterministic reports that people, CI jobs, and AI-assisted workflows can use safely.
+**Unreal Engine content validation and crash intelligence—from editor checks to an observable operations stack.**
 
-The intended end-to-end flow is:
+PipelineGuard catches content issues before they reach CI, produces deterministic reports for people and automation, and groups Unreal crash reports into searchable incidents. It combines an Unreal Engine 5.6 plugin with .NET 8 services, a constrained MCP interface, and a containerized crash-processing pipeline.
 
-1. A shared Unreal validation runner checks content from either an editor tab or a headless commandlet.
-2. The runner writes a versioned JSON report and returns a CI-safe exit code.
-3. A .NET CLI verifies and summarizes the report; an ASP.NET service stores run history.
-4. OpenTelemetry makes the .NET workflow observable.
-5. A constrained MCP server lets an AI agent inspect results without arbitrary command or filesystem access.
+## What it does
 
-The repository now also contains [PipelineGuard Crash Intelligence](docs/crash-intelligence/README.md): an event-driven subsystem that ingests Unreal crashes through ASP.NET Core, processes them through RabbitMQ workers, groups normalized stacks in Elasticsearch, and presents the results in a React/Grafana operations surface.
+| Content validation | Crash intelligence |
+| --- | --- |
+| Runs the same C++ validation rules in an editor panel or headless commandlet | Accepts bounded crash reports through an ASP.NET Core API |
+| Checks naming, paths, texture budgets, and DataTable structure | Queues durable events in RabbitMQ for horizontal workers |
+| Produces a versioned JSON report with CI-safe exit codes | Normalizes call stacks and creates deterministic SHA-256 fingerprints |
+| Summarizes and compares reports through a .NET CLI | Stores idempotent crash documents and groups them in Elasticsearch |
+| Stores run history in SQLite and exposes four read-only MCP tools | Surfaces incidents through a React dashboard, OpenTelemetry, and Grafana |
 
-The portable .NET layer and sample reports do not require Unreal Engine or BlackWood. The Unreal plugin requires a compatible Unreal Engine 5.6 installation. Project-specific BlackWood rules require the BlackWood repository and must be defined only after its real data contracts have been inspected.
+## Architecture
 
-## Verified release
+```mermaid
+flowchart LR
+    subgraph Validation[Content validation]
+        Editor[Unreal editor] --> Runner[C++ validation runner]
+        CI[CI / BuildGraph] --> Commandlet[Headless commandlet] --> Runner
+        Runner --> Report[Versioned JSON report]
+        Report --> CLI[.NET CLI]
+        Report --> Runs[ASP.NET API + SQLite]
+        Runs --> MCP[Read-only MCP server]
+    end
 
-The 2026-07-16 local release is verified, with the limits stated explicitly:
+    subgraph Crashes[Crash intelligence]
+        Unreal[Unreal crash reporter] --> API[Crash API]
+        API --> Queue[(RabbitMQ quorum queue)]
+        Queue --> Worker[Worker replicas]
+        Worker --> Search[(Elasticsearch)]
+        Search --> Dashboard[React dashboard]
+        API -. telemetry .-> OTel[OpenTelemetry]
+        Worker -. telemetry .-> OTel
+        OTel --> Grafana[Prometheus + Grafana]
+    end
+```
 
-- A seven-project .NET 8 solution builds in Release with zero warnings; 49 xUnit tests pass.
-- SDK 8.0.300 restore audits direct and transitive NuGet dependencies; no known vulnerable package is reported.
-- GitHub Actions passes the same audited build and test gates on Ubuntu and Windows.
-- The UE 5.6.1 editor target builds, all four synthetic Unreal automation tests pass, and the headless commandlet emits schema `1.0`.
-- The two-node BuildGraph compiles the editor target and runs the commandlet successfully.
-- Fixture outcomes are `0` clean, `1` findings, and `2` invalid contract.
-- The loopback API returns `201` ingest, `409` duplicate, and `400` invalid; SQLite retrieval, structured logs, traces, and three custom metrics were observed.
-- An official MCP SDK client discovered exactly four read-only tools and successfully called both run-list and run-summary tools.
+## Engineering highlights
 
-The fixture host intentionally has zero project assets. Generic rule behavior is covered by synthetic tests; BlackWood integration and production time-saved claims are not made. See the [verification record](docs/verification.md).
+- **Contract-first boundary:** Unreal and .NET communicate through a strict, versioned JSON schema with cross-field validation and deterministic ordering.
+- **Editor/CI parity:** one validation runner powers both interactive asset workflows and unattended commandlet execution.
+- **Safe AI access:** MCP is read-only, API-backed, paginated, and bounded—no arbitrary filesystem or command execution.
+- **Reliable event processing:** persistent publisher confirms, at-least-once delivery, bounded retries, dead-letter routing, and idempotent Elasticsearch writes.
+- **Operational visibility:** traces, metrics, structured logs, health probes, provisioned dashboards, and alerts are included.
+- **Portable verification:** GitHub Actions builds, audits, and tests the .NET and React surfaces on Windows and Linux.
 
-## Crash Intelligence status
+## Verified results
 
-The crash subsystem includes the API, RabbitMQ worker, deterministic fingerprinting, Elasticsearch search/aggregation, React dashboard, OpenTelemetry/Grafana provisioning, Docker Compose, optional Kubernetes manifests, and a 10,000-report verification harness. Its portable baseline adds 9 passing tests (58 repository portable tests observed locally) and 59.00% line coverage for the new crash solution. A recorded local Compose run accepted 10,000 reports, grouped all equivalent variants correctly, produced zero duplicate effects after replaying all 10,000 messages, measured 15.33 ms search p95, and recovered 100 queued reports 9.43 seconds after restarting the worker. Ingestion p95 was 3.45 seconds at concurrency 32 and remains an explicit optimization target. See the [Compose benchmark evidence](docs/crash-intelligence/evidence/2026-08-08-compose-benchmark.md).
+| Verification | Observed result |
+| --- | --- |
+| Portable test suites | **58 passing tests** (49 validation + 9 crash intelligence) |
+| Unreal Engine 5.6.1 | Editor target built; **4/4 automation tests** passed; commandlet and BuildGraph completed |
+| Crash benchmark | **10,000 reports** accepted and grouped into the intended 100 deterministic fixture groups |
+| Replay safety | Replaying all 10,000 messages created **zero duplicate Elasticsearch effects** |
+| Search performance | **15.33 ms p95** across 100 filtered group searches |
+| Worker recovery | 100 queued reports processed **9.43 s** after restart |
 
-## Project boundaries
+These are recorded local verification results, not production SLAs. The Unreal fixture host uses synthetic rule tests, and the benchmark environment and limitations are documented in the [verification record](docs/verification.md) and [benchmark evidence](docs/crash-intelligence/evidence/2026-08-08-compose-benchmark.md).
 
-| Capability | Portable .NET | Unreal 5.6 | BlackWood |
-| --- | :---: | :---: | :---: |
-| Validate, summarize, store, and query fixture reports | Yes | No | No |
-| OpenTelemetry traces, metrics, and structured logs | Yes | No | No |
-| Read-only MCP inspection tools | Yes | No | No |
-| Editor validation tab and headless commandlet | No | Yes | No |
-| Generic naming, path, texture, and DataTable rules | No | Yes | No |
-| Item, dialogue, soft-reference, or footstep rules | No | Yes | Yes |
+## Tech stack
 
-Not in the first release: Horde deployment, WPF, Entra/Key Vault, Perforce integration, remote production hosting, automatic AI fixes, or arbitrary MCP-triggered commands.
+- **Engine:** Unreal Engine 5.6, C++, Slate, commandlets, automation tests, BuildGraph
+- **Backend:** .NET 8, ASP.NET Core, SQLite, RabbitMQ, Elasticsearch
+- **Frontend:** React, TypeScript, Vite
+- **Observability:** OpenTelemetry, Prometheus, Grafana
+- **Automation:** Docker Compose, Kubernetes/Kustomize, GitHub Actions, xUnit
+- **AI integration:** official Model Context Protocol SDK with four constrained inspection tools
 
 ## Quick start
 
-### Requirements
+### Build and test the portable projects
 
-- .NET 8 SDK
-- Git
-- Unreal Engine 5.6 and its C++ build prerequisites only for the Unreal phase
-
-Confirm the SDK and build the portable solution:
+Requires the .NET 8 SDK. Unreal Engine is only needed to build or run the plugin.
 
 ```console
-dotnet --version
 dotnet restore PipelineGuard.sln
 dotnet build PipelineGuard.sln --configuration Release --no-restore
 dotnet test PipelineGuard.sln --configuration Release --no-build
+
+dotnet restore PipelineGuard.CrashIntelligence.sln
+dotnet build PipelineGuard.CrashIntelligence.sln --configuration Release --no-restore
+dotnet test PipelineGuard.CrashIntelligence.sln --configuration Release --no-build
 ```
 
-The exact executable commands are exposed by the CLI itself:
-
-```console
-dotnet run --project src/PipelineGuard.Cli -- --help
-```
-
-Use the supplied fixtures to exercise all three report outcomes:
+Exercise the CLI with the supplied fixtures:
 
 ```console
 dotnet run --project src/PipelineGuard.Cli -- summary samples/clean-report.json --minimum info --fail-on error
-dotnet run --project src/PipelineGuard.Cli -- summary samples/error-report.json --minimum info --fail-on error
-dotnet run --project src/PipelineGuard.Cli -- summary samples/malformed-report.json --minimum info --fail-on error
-```
-
-Compare a prior accepted report with a current run:
-
-```console
 dotnet run --project src/PipelineGuard.Cli -- compare samples/clean-report.json samples/error-report.json --fail-on error
 ```
 
-When Unreal is installed, ask the CLI for the engine-orchestration arguments:
+CLI exit codes are deterministic: `0` clean, `1` findings at the failure threshold, `2` invalid input or contract, and `3` execution failure.
 
-```console
-dotnet run --project src/PipelineGuard.Cli -- validate --help
-```
+### Run Crash Intelligence
 
-The CLI's engine invocation is equivalent to:
-
-```console
-UnrealEditor-Cmd.exe <Project.uproject> -run=PipelineGuard -Report=<report.json> -unattended -nop4 -nullrhi
-```
-
-If `-Report` is omitted from a direct commandlet run, the plugin writes to `<Project>/Saved/PipelineGuard/PipelineGuardReport.json`. Prefer an explicit report path in automation.
-
-Expected process results:
-
-| Exit code | Meaning | Fixture |
-| ---: | --- | --- |
-| `0` | Valid report below the configured failure threshold | `clean-report.json` |
-| `1` | Valid report containing findings at or above the threshold | `error-report.json` |
-| `2` | Invalid arguments, configuration, or report contract | `malformed-report.json` |
-| `3` | Unreal process, report-write, or internal execution failure | Not fixture-driven |
-
-The raw Unreal commandlet additionally uses exit `4` when validation ran but its report could not be written. The .NET CLI maps that condition to its public execution-failure exit `3`.
-
-### Crash Intelligence stack
-
-On Linux with Docker Compose v2, start RabbitMQ, Elasticsearch, the crash API and worker, dashboard, and monitoring stack:
+Requires Docker Engine with Compose v2.
 
 ```console
 cp .env.example .env
 # Replace the development credentials in .env.
 docker compose up --build -d
 curl http://127.0.0.1:5080/health/ready
-curl -i -X POST http://127.0.0.1:5080/api/v1/crashes -H "Content-Type: application/json" --data-binary "@samples/crash-report.json"
+curl -i -X POST http://127.0.0.1:5080/api/v1/crashes \
+  -H "Content-Type: application/json" \
+  --data-binary @samples/crash-report.json
 ```
 
-Open the crash dashboard at <http://127.0.0.1:3000>, generated OpenAPI at <http://127.0.0.1:5080/openapi/v1.json>, and Grafana at <http://127.0.0.1:3001>. Full operating, replay, worker-recovery, and 10,000-report benchmark instructions are in the [Crash Intelligence guide](docs/crash-intelligence/README.md).
+- Dashboard: <http://127.0.0.1:3000>
+- OpenAPI: <http://127.0.0.1:5080/openapi/v1.json>
+- Grafana: <http://127.0.0.1:3001>
 
-### Local report service
+See the [Crash Intelligence guide](docs/crash-intelligence/README.md) for operations, replay, recovery, and benchmark instructions.
 
-Start the loopback-only API in one terminal:
-
-```console
-dotnet run --project src/PipelineGuard.Api
-```
-
-In another terminal, check health, ingest a conforming fixture, and list stored runs:
-
-```console
-curl http://127.0.0.1:5078/health
-curl -i -X POST http://127.0.0.1:5078/api/v1/runs -H "Content-Type: application/json" --data-binary "@samples/clean-report.json"
-curl "http://127.0.0.1:5078/api/v1/runs?limit=20&offset=0"
-```
-
-The default SQLite database lives beneath the API build output. Override `PipelineGuard:DatabasePath` through normal ASP.NET configuration when a stable local path is needed.
-
-### MCP server
-
-Configure an MCP client to launch the stdio server with executable `dotnet` and arguments `run --project src/PipelineGuard.Mcp`. It queries `http://127.0.0.1:5078/` by default. `PIPELINEGUARD_API_URL` may select another endpoint, but non-loopback endpoints are rejected unless `PIPELINEGUARD_ALLOW_REMOTE_API=true` is explicitly set.
-
-The `tools/PipelineGuard.Mcp.Smoke` client uses the official SDK to verify initialization, the exact tool allowlist, and real tool calls against a running API.
-
-### BuildGraph
-
-On Windows, run the same two-node compile-and-validate graph used for the local
-verification:
-
-```powershell
-./scripts/Invoke-PipelineGuardBuildGraph.ps1 -EngineRoot "C:/Program Files/Epic Games/UE_5.6"
-```
-
-`malformed-report.json` is valid JSON by design. It is malformed as a PipelineGuard report, which lets parsers load it and contract tests reject it predictably.
-
-## Repository map
+## Repository guide
 
 ```text
-PipelineGuard/
-|-- src/                         validation and crash-intelligence .NET services
-|-- tests/                       portable unit and integration tests
-|-- dashboard/                   React crash-group operations dashboard
-|-- deploy/                      observability and optional Kubernetes resources
-|-- tools/                       official-SDK MCP protocol smoke client
-|-- unreal/                      editor-only Unreal plugin and fixture host
-|-- schemas/                     validation and crash-report JSON contracts
-|-- samples/                     validation and crash-report fixtures
-|-- docs/                        architecture, operations, evidence, and QA records
-`-- .github/workflows/           portable Windows/Linux verification
+src/          .NET contracts, CLI, APIs, MCP server, and crash worker
+tests/        portable xUnit suites
+unreal/       Unreal plugin, fixture host, automation tests, and BuildGraph
+dashboard/    React crash-operations dashboard
+deploy/       observability and Kubernetes resources
+schemas/      versioned validation and crash-report contracts
+samples/      clean, failing, malformed, and crash fixtures
+docs/         architecture, security, verification, and operations evidence
 ```
-
-## Contract first
-
-[`schemas/validation-report-v1.schema.json`](schemas/validation-report-v1.schema.json) is the portable boundary between Unreal and .NET. Producers must validate their output against it. Consumers must additionally enforce the cross-field invariants documented in [`docs/report-schema.md`](docs/report-schema.md), such as matching summary counts and chronological timestamps.
-
-## Safety model
-
-MCP inspection is read-only. An optional run tool, if implemented later, is disabled by default and accepts a preconfigured profile ID rather than an executable, project path, or raw arguments. See [`docs/threat-model.md`](docs/threat-model.md) for trust boundaries, abuse cases, and required negative tests.
 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
-- [Report schema](docs/report-schema.md)
+- [Validation report contract](docs/report-schema.md)
 - [Threat model](docs/threat-model.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Demo plan](docs/demo-plan.md)
 - [Verification record](docs/verification.md)
-- [Manual QA and regression evidence](docs/qa/README.md)
-- [Crash Intelligence architecture, operations, and benchmark](docs/crash-intelligence/README.md)
+- [Crash Intelligence](docs/crash-intelligence/README.md)
+- [Unreal plugin](unreal/PipelineGuard/README.md)
 
-## Security and license
+## License
 
-Report suspected vulnerabilities privately as described in
-[`SECURITY.md`](SECURITY.md). The code is published for portfolio review and
-evaluation under an all-rights-reserved [`LICENSE`](LICENSE); it is not
-open-source licensed.
-
-## Evidence before claims
-
-Only claims listed in the [verification record](docs/verification.md) or a completed [QA execution record](docs/qa/executions/) are release evidence. Case definitions and automation references are not passes. Performance captures are local observations until the [baseline rules](docs/qa/performance/performance-plan.md) are satisfied. BlackWood integration, production performance, and time saved remain unverified and must not be claimed. Future releases should update the records with their actual tests, assets, findings, and environment.
+Published for portfolio review and evaluation under the all-rights-reserved [license](LICENSE). Security reports should follow [SECURITY.md](SECURITY.md).
