@@ -47,3 +47,16 @@ Both solutions restored with `NuGetAudit=true` / `NuGetAuditMode=all` and built 
 Both `dotnet list ... package --vulnerable --include-transitive` commands reported no vulnerable packages for the current source; `npm audit --prefix dashboard --audit-level=high` reported zero vulnerabilities. Dashboard production build and `node --check` for both verification scripts passed. These are local/current-feed results, not future security guarantees.
 
 No Unreal build, broker/search integration, dashboard browser interaction, production deployment or hosted CI was performed. The solution's existing CRLF line endings were retained; diff whitespace checks use `git -c core.whitespace=cr-at-eol diff --check`.
+
+## Learning checkpoints (intentional failures)
+
+`shaoyu/learning` branches from verified baseline `0ff1881`. Checkpoints are preserved; no existing history was rewritten.
+
+| Checkpoint | Observed faulty result | Temporarily repaired result |
+| --- | --- | --- |
+| `0062219` history incident | 3/6 SQLite cases failed; HTTP smoke failed order after restart | all 55 validation tests + HTTP smoke passed |
+| `4359e3d` replay incident | 1/28 crash cases failed; 27 passed | all 28 crash tests + both zero-warning builds + HTTP smoke passed |
+
+The second checkpoint restores the first defect before introducing its own. Repair verification was actually run with targeted edits, then faulty source restored and the working branch reselected. Simulated reports/consequences are learner practice; these failure counts are actual local observations. Diagnosis and hints live separately under `docs/learning-solutions/`, which is absent from the original learning checkpoints. The learner has not completed an investigation, so no personal debugging story is claimed.
+
+After returning to `shaoyu/rework`, both Release builds, all **83 tests**, and the HTTP restart smoke were rerun and passed. Final diff and documentation links were inspected. Only agent-owned source/tests/docs/CI changes were committed; generated logs/results remain ignored. No push or history rewrite was performed.
