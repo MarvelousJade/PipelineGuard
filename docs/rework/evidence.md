@@ -39,3 +39,11 @@ Observed: zero build warnings/errors; **28 crash tests passed**, none skipped (9
 ## Follow-up fix: distinct CI test evidence
 
 The final verification reproduced `WARNING: Overwriting results file` when the expanded validation solution used one fixed TRX filename for both test assemblies. This was introduced by adding a second test project, not an old product defect. CI now tests the two validation projects with distinct `core.trx` and `api.trx` filenames. Local execution of those exact commands passed 49 and 6 tests and produced both files (70,130 and 9,860 bytes in this run), with no overwrite warning. Hosted CI remains unrun.
+
+## Working baseline final gates
+
+Both solutions restored with `NuGetAudit=true` / `NuGetAuditMode=all` and built Release with `--warnaserror`: zero warnings/errors. Full suites: **49 + 6 + 28 = 83 passed**, none skipped. HTTP restart smoke passed again. CLI fixtures returned expected exits: clean 0, error 1, malformed/type-invalid 2, clean→error comparison 1.
+
+Both `dotnet list ... package --vulnerable --include-transitive` commands reported no vulnerable packages for the current source; `npm audit --prefix dashboard --audit-level=high` reported zero vulnerabilities. Dashboard production build and `node --check` for both verification scripts passed. These are local/current-feed results, not future security guarantees.
+
+No Unreal build, broker/search integration, dashboard browser interaction, production deployment or hosted CI was performed. The solution's existing CRLF line endings were retained; diff whitespace checks use `git -c core.whitespace=cr-at-eol diff --check`.

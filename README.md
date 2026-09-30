@@ -16,6 +16,21 @@ PipelineGuard catches content issues before they reach CI, produces deterministi
 | Summarizes and compares reports through a .NET CLI | Stores idempotent crash documents and groups them in Elasticsearch |
 | Stores run history in SQLite and exposes four read-only MCP tools | Surfaces incidents through a React dashboard, OpenTelemetry, and Grafana |
 
+## Start small
+
+For an interview-sized workflow, start with **report fixture → strict validation API → SQLite history → list/get**. It needs only .NET 8 and Node 22, not Unreal, Docker, RabbitMQ or Elasticsearch:
+
+```console
+dotnet restore PipelineGuard.sln
+dotnet build PipelineGuard.sln -c Release --no-restore
+dotnet test PipelineGuard.sln -c Release --no-build
+node scripts/verify-validation.mjs
+```
+
+The smoke starts its own loopback API with a temporary database, checks uploads and chronological pagination, restarts it, then cleans up. The crash stack is a separate optional workflow, not a prerequisite.
+
+See the [rework guide](docs/rework/README.md), [actual evidence](docs/rework/evidence.md), and [interview walkthrough](docs/rework/interview.md). The rework preserves the original functionality and history; it is not a new implementation from scratch.
+
 ## Architecture
 
 ```mermaid
@@ -54,14 +69,14 @@ flowchart LR
 
 | Verification | Observed result |
 | --- | --- |
-| Portable test suites | **58 passing tests** (49 validation + 9 crash intelligence) |
+| Portable test suites (local rework rerun) | **83 passing tests** (49 core + 6 SQLite + 28 crash intelligence) |
 | Unreal Engine 5.6.1 | Editor target built; **4/4 automation tests** passed; commandlet and BuildGraph completed |
 | Crash benchmark | **10,000 reports** accepted and grouped into the intended 100 deterministic fixture groups |
 | Replay safety | Replaying all 10,000 messages created **zero duplicate Elasticsearch effects** |
 | Search performance | **15.33 ms p95** across 100 filtered group searches |
 | Worker recovery | 100 queued reports processed **9.43 s** after restart |
 
-These are recorded local verification results, not production SLAs. The Unreal fixture host uses synthetic rule tests, and the benchmark environment and limitations are documented in the [verification record](docs/verification.md) and [benchmark evidence](docs/crash-intelligence/evidence/2026-08-08-compose-benchmark.md).
+The portable tests and HTTP/SQLite smoke were rerun during this rework; Unreal and crash benchmark rows are historical recorded results, not reruns. These are local verification results, not production SLAs. The Unreal fixture host uses synthetic rule tests, and the benchmark environment and limitations are documented in the [verification record](docs/verification.md) and [benchmark evidence](docs/crash-intelligence/evidence/2026-08-08-compose-benchmark.md).
 
 ## Tech stack
 
@@ -136,6 +151,8 @@ docs/         architecture, security, verification, and operations evidence
 - [Validation report contract](docs/report-schema.md)
 - [Threat model](docs/threat-model.md)
 - [Verification record](docs/verification.md)
+- [Rework decisions and limitations](docs/rework/decisions.md)
+- [Debugging exercises (no solutions)](docs/learning/README.md)
 - [Crash Intelligence](docs/crash-intelligence/README.md)
 - [Unreal plugin](unreal/PipelineGuard/README.md)
 
