@@ -26,7 +26,23 @@ These are project explanations, **not claims about the learner's personal experi
 6. What can the synthetic handler prove, and what requires a real RabbitMQ/Elasticsearch test?
 7. How could bounded status aggregation miss a group? What changes would true multi-tenant isolation require?
 
-## After the exercises
+## Completed agent investigations — explanations, not personal stories
+
+Both intentional exercises were completed autonomously by the agent with access to the separate solutions. These summaries describe actual local agent checks, not blind discoveries or the user's experience. See [investigation and integration evidence](../learning-investigations/README.md).
+
+### History chronology (`d8a0a8f`)
+
+**Problem →** older report listed first after restart. **Candidate explanation →** offset-preserving strings were sorted as local clocks (solution-assisted). **Evidence →** 3/6 SQLite tests failed; real HTTP smoke returned run `001` instead of `002`; independent conversion showed 12:00+03:00 = 09:00Z. **Decision →** normalize metadata rather than change UI order or rewrite uploaded JSON. **Fix →** restore UTC conversion before round-trip formatting. **Verification →** all 55 validation tests, zero-warning build and restart smoke passed.
+
+Follow-ups: Why does invariant formatting not imply UTC? Why is a tie-breaker still needed? What would a cursor guarantee under concurrent inserts that offset pages do not? When would startup normalization justify a versioned migration?
+
+### Immutable replay (`1d5a25c`)
+
+**Problem →** same-ID replay changed stored processing time. **Candidate explanation →** ordinary PUT replaced the document despite stable identity (solution-assisted). **Evidence →** adapter regression failed with 12:05Z becoming 12:06Z while the other 27 crash tests, including in-memory duplicate processing, passed. **Decision →** let storage atomically enforce create-if-absent, avoiding GET-before-PUT races. **Fix →** restore `op_type=create` and retain conflict-as-duplicate handling. **Verification →** focused regression and all 28 crash tests passed; both builds and HTTP smoke passed.
+
+Follow-ups: Why can document count stay correct while audit evidence changes? What happens after index success but before acknowledgment? Why is an in-memory set insufficient across worker replicas? What does the synthetic handler fail to prove, and how would a real replay test strengthen the evidence?
+
+## For the user's own investigation
 
 Keep notes using this template; don't fill it with invented results:
 

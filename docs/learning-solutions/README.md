@@ -4,6 +4,10 @@
 
 An assistant should provide only the requested hint level, not this entire file. Ask for investigation notes before preparing interview stories.
 
+## Completion status
+
+At the user's request, the agent subsequently completed both exercises autonomously and committed permanent repairs: history `d8a0a8f`, replay `1d5a25c`. They are preserved in local `main` through merges, with [fresh reproduction and final checks](../learning-investigations/README.md). The temporary-repair descriptions below record the original exercise preparation, not this later completion. The original faulty checkpoints remain unchanged.
+
 ## Exercise 1 — checkpoint 0062219
 
 ### Progressive hints (release one at a time)

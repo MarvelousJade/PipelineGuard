@@ -2,6 +2,8 @@
 
 PipelineGuard validates Unreal content reports and, independently, groups crashes. This rework began at `3a37303`, preserves the existing history/features, and improves two persistence boundaries rather than rebuilding the system.
 
+The verified rework at `4c2b37e` and corrected learning branch are now integrated into local `main` without squashing. Both dedicated exercise fix commits are preserved in its ancestry. See [agent investigations and fresh integration checks](../learning-investigations/README.md); original faulty checkpoints remain available for practice.
+
 ## One workflow to understand first
 
 ```text

@@ -1,5 +1,11 @@
 # Verification record
 
+## Learning completion and main integration — 2026-09-30
+
+Both practice defects were freshly reproduced and repaired in individual commits (`d8a0a8f`, `1d5a25c`) preserved by non-squash merges into local `main`. On the integrated merge tree, both Release builds had zero warnings/errors, **83 tests passed**, real HTTP/SQLite smoke and dashboard production build passed, and current NuGet/npm audits reported no vulnerabilities. See [fresh commands, investigation records and limitations](learning-investigations/README.md).
+
+Docker daemon access was freshly checked and unavailable; integration/recovery/benchmark were not run. Unreal and browser checks were not run because their source surfaces were unchanged. Hosted CI and production deployment were not run. Earlier results below remain historical.
+
 ## Rework portable rerun — 2026-09-30
 
 On `shaoyu/rework`: both Release builds passed with zero warnings/errors; **83 tests passed** (49 core, 6 SQLite, 28 crash). The isolated HTTP ingest/restart/history smoke and dashboard production build passed; current NuGet/npm audits reported no vulnerabilities. See [reproducible commands and scope](rework/README.md) and [actual evidence](rework/evidence.md).

@@ -1,5 +1,7 @@
 # Rework verification evidence
 
+This file records the original rework and exercise preparation. Subsequent autonomous completion committed permanent repairs and merged both branches into local `main`; [new investigation/integration evidence](../learning-investigations/README.md) records fresh reruns separately. The historical counts below are not substituted for those checks.
+
 Local Linux session, 2026-09-30 UTC; .NET SDK 8.0.423, runtime 8.0.29. All results here were actually run in this rework. Original Windows/Unreal and Compose results in `docs/verification.md` are historical, not reruns.
 
 ## Baseline at 3a37303

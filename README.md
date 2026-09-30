@@ -29,7 +29,7 @@ node scripts/verify-validation.mjs
 
 The smoke starts its own loopback API with a temporary database, checks uploads and chronological pagination, restarts it, then cleans up. The crash stack is a separate optional workflow, not a prerequisite.
 
-See the [rework guide](docs/rework/README.md), [actual evidence](docs/rework/evidence.md), and [interview walkthrough](docs/rework/interview.md). The rework preserves the original functionality and history; it is not a new implementation from scratch.
+See the [rework guide](docs/rework/README.md), [actual evidence](docs/rework/evidence.md), and [interview walkthrough](docs/rework/interview.md). The rework preserves the original functionality and history; it is not a new implementation from scratch. Rework and corrected learning are now merged into local `main`, preserving both individual exercise fixes; [agent completion records](docs/learning-investigations/README.md) contain fresh verification and investigation evidence.
 
 ## Architecture
 

@@ -1,6 +1,8 @@
 # Debugging practice — learner instructions only
 
-These are **invented practice incidents**, not defects discovered in production. Consequences below are hypothetical. The working `shaoyu/rework` branch passes; `shaoyu/learning` deliberately contains faulty checkpoints (`0062219` and `4359e3d`). No Docker or Unreal is required.
+These are **invented practice incidents**, not defects discovered in production. Consequences below are hypothetical. Both exercises were completed autonomously by the agent; corrected `shaoyu/learning` and rework were integrated into local `main` without squashing. The faulty checkpoints (`0062219` and `4359e3d`) remain in history; branch heads are no longer faulty. No Docker or Unreal is required.
+
+Agent investigation and fresh integration evidence are in [completion records](../learning-investigations/README.md) (spoilers). This does not represent the user's personal debugging experience. The instructions below still reproduce the original exercises from pinned checkpoints.
 
 Before switching, inspect `git status` and preserve your changes. Never reset a dirty tree. Create your own solution branches; do not change the original checkpoints or push them. Each checkpoint has only its own defect: exercise 2 restores exercise 1 before introducing a different mistake.
 
@@ -15,7 +17,7 @@ Do not read `docs/learning-solutions/`, `docs/rework/decisions.md`, the checkpoi
 Start from the first checkpoint:
 
 ```console
-git switch -c shaoyu/solve-history 0062219
+git switch -c shaoyu/practice-history 0062219
 dotnet restore PipelineGuard.sln
 dotnet build PipelineGuard.sln -c Release --no-restore
 node scripts/verify-validation.mjs
@@ -36,7 +38,7 @@ Once you have a diagnosis/fix, use `dotnet test tests/PipelineGuard.Api.Tests -c
 Start from the second checkpoint (independent of your exercise-1 work):
 
 ```console
-git switch -c shaoyu/solve-replay 4359e3d
+git switch -c shaoyu/practice-replay 4359e3d
 dotnet restore PipelineGuard.CrashIntelligence.sln
 dotnet build PipelineGuard.CrashIntelligence.sln -c Release --no-restore
 dotnet test tests/PipelineGuard.CrashIntelligence.Tests -c Release --filter Replay_PreservesOriginalDocumentThroughHttpAdapter
