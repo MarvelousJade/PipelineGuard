@@ -115,7 +115,7 @@ public sealed class SqliteReportStore
     }
 
     private static string FormatUtc(DateTimeOffset timestamp) =>
-        timestamp.ToUniversalTime().ToString("O", System.Globalization.CultureInfo.InvariantCulture);
+        timestamp.ToString("O", System.Globalization.CultureInfo.InvariantCulture);
 
     public async Task<bool> TryAddAsync(
         ValidationReport report,
