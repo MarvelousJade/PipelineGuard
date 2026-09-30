@@ -30,6 +30,7 @@ The original validation-report API remains separate and unchanged. Crash Intelli
 - **Bounded retries:** transient failures use incremental local backoff before they are negatively acknowledged and requeued. The quorum queue's delivery limit is five; exhausted and permanently invalid messages route to `pipelineguard.crash.dead-letter`.
 - **Horizontal workers:** RabbitMQ prefetch is bounded and competing consumers share the queue. No in-memory group counter is authoritative.
 - **Service recovery:** API and worker readiness includes their dependencies; both reconnect after RabbitMQ or Elasticsearch interruption. Liveness does not fail solely because a dependency is unavailable.
+- **Index boundary:** only a `404` index probe triggers creation; authorization/outage responses are failures, not missing indexes. HTTP timeouts are transient; caller cancellation propagates. Portable adapter tests verify create-only requests and immutable replay through a synthetic HTTP handler, not a real cluster (see [rework evidence](../rework/evidence.md)).
 
 Elasticsearch aggregations calculate group counts and affected builds from immutable crash documents. This avoids a distributed transaction between a crash document and a mutable group counter.
 
