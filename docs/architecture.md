@@ -13,12 +13,12 @@ flowchart LR
     Runner --> Report[Validation report v1 JSON]
     CLI[.NET CLI] --> Cmd
     Report --> CLI
-    CLI --> API[ASP.NET report API]
+    Upload[HTTP report upload] --> API[ASP.NET report API]
+    Report --> Upload
     API --> DB[(SQLite run history)]
     MCP[Constrained MCP server] --> API
     Agent[AI coding agent] --> MCP
-    CLI -. traces / metrics / logs .-> OTel[OpenTelemetry exporter]
-    API -. traces / metrics / logs .-> OTel
+    API -. traces / metrics / logs .-> OTel[OpenTelemetry exporter]
     MCP -. traces / metrics / logs .-> OTel
 ```
 
@@ -30,8 +30,8 @@ The AI agent is not trusted merely because it is local. MCP arguments are treate
 
 The plugin contains one validation runner and two adapters:
 
-- The editor adapter renders a filterable result list, navigates to an asset, displays remediation, and exports JSON.
-- The commandlet adapter selects a configured scope, invokes the same runner, writes JSON, and maps the configured failure threshold to a process exit code.
+- The editor adapter renders findings, navigates to an asset and displays remediation. Filtering/export controls are not implemented (PG-001).
+- The commandlet adapter selects a configured scope, invokes the same runner, writes JSON and fails on errors. It does not honor a warning threshold directly (PG-004); the .NET wrapper evaluates its own configured threshold against the report.
 
 The adapters must not reimplement validation rules. Given the same project revision, profile, and scope, editor and commandlet runs should produce the same sorted finding set.
 
@@ -58,7 +58,8 @@ The CLI is both a report consumer and, when Unreal is installed, a safe process 
 - Summarize or filter findings for a person or CI log.
 - Apply a failure threshold and return the documented exit code.
 - Launch an approved Unreal executable with `ProcessStartInfo.ArgumentList`, a timeout, cancellation, and bounded output. The commandlet contract is `-run=PipelineGuard -Report=<path>`.
-- Optionally submit a verified report to the API.
+
+Report submission is a separate HTTP upload; the current CLI does not implement an upload command.
 
 The CLI never builds a shell command string from user input.
 
@@ -71,7 +72,9 @@ The initial API is a local development service rather than a production multi-us
 - `GET /api/v1/runs/{id}`
 - `GET /health`
 
-Lists are paginated. Invalid or unsupported report versions receive a client error and are not persisted.
+Lists are paginated by completion instant descending, then run ID ascending for stable ties. SQLite metadata timestamps are canonical UTC round-trip strings; startup transactionally normalizes legacy offset-bearing metadata without changing uploaded report JSON. Duplicate IDs never replace stored reports. Invalid or unsupported report versions receive a client error and are not persisted.
+
+Run the isolated ingest → persist → list/get → restart workflow with `node scripts/verify-validation.mjs` after a Release build. See [rework decisions](rework/decisions.md) for alternatives and migration limits.
 
 ### MCP server
 
@@ -86,9 +89,9 @@ The server queries the application/API rather than opening arbitrary files. It a
 
 ### Observability
 
-The portable components emit all three OpenTelemetry signals:
+The report API and MCP server configure OpenTelemetry exporters; the current CLI does **not** implement telemetry (tracked as PG-005). The intended CLI/process instrumentation is not claimed as working here.
 
-- Traces around CLI execution, Unreal process invocation, report ingestion, persistence, and MCP tool calls
+- Traces around report ingestion and MCP tool calls
 - Metrics for run count, duration, and findings grouped only by bounded rule/severity dimensions
 - Structured logs carrying the active trace ID
 
@@ -115,7 +118,7 @@ Build and test contracts, fixtures, CLI behavior, API persistence, telemetry, an
 
 ### Phase 2: generic Unreal proof
 
-Compile the plugin in a clean UE 5.6 C++ editor project. Add passing and failing fixture assets for each generic rule. Prove editor/commandlet parity and .NET orchestration.
+Compile the plugin in a clean UE 5.6 C++ editor project. Add passing and failing fixture assets for each generic rule. Prove editor/commandlet parity and .NET orchestration. This remains a phase goal: the recorded Unreal host has no game-content assets, and PG-001/PG-004 track incomplete editor controls and warning-threshold behavior.
 
 ### Phase 3: BlackWood integration
 

@@ -1,5 +1,11 @@
 # Verification record
 
+## Rework portable rerun — 2026-09-30
+
+On `shaoyu/rework`: both Release builds passed with zero warnings/errors; **83 tests passed** (49 core, 6 SQLite, 28 crash). The isolated HTTP ingest/restart/history smoke and dashboard production build passed; current NuGet/npm audits reported no vulnerabilities. See [reproducible commands and scope](rework/README.md) and [actual evidence](rework/evidence.md).
+
+Docker daemon unavailable; Unreal, Compose recovery/benchmark, hosted CI and dashboard browser behavior were **not rerun**. The following records remain historical.
+
 ## Release 2026-07-16
 
 This record separates implemented and observed behavior from planned integration. It was produced on Windows 11 with Unreal Engine 5.6.1 and the repository's pinned package versions.

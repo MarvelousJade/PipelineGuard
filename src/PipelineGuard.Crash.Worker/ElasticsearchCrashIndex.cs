@@ -31,14 +31,22 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
 
     public async Task EnsureIndexAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
+            using var headRequest = new HttpRequestMessage(HttpMethod.Head, _options.CrashIndex);
             using HttpResponseMessage head = await _httpClient
-                .SendAsync(new HttpRequestMessage(HttpMethod.Head, _options.CrashIndex), cancellationToken)
+                .SendAsync(headRequest, cancellationToken)
                 .ConfigureAwait(false);
             if (head.IsSuccessStatusCode)
             {
                 return;
+            }
+
+            if (head.StatusCode != HttpStatusCode.NotFound)
+            {
+                string headDetails = await head.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                throw CreateIndexException(head.StatusCode, "check the crash index", headDetails);
             }
 
             const string mappingTemplate = """
@@ -102,6 +110,10 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
         {
             throw new CrashIndexTransientException("Elasticsearch is unavailable.", exception);
         }
+        catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new CrashIndexTransientException("Elasticsearch request timed out.", exception);
+        }
     }
 
     public async Task<CrashIndexWriteOutcome> TryCreateAsync(
@@ -109,6 +121,7 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(document);
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(
@@ -132,6 +145,10 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
         catch (HttpRequestException exception)
         {
             throw new CrashIndexTransientException("Elasticsearch is unavailable.", exception);
+        }
+        catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new CrashIndexTransientException("Elasticsearch request timed out.", exception);
         }
     }
 

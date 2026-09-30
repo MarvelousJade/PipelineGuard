@@ -69,7 +69,53 @@ public sealed class SqliteReportStore
                 ON validation_runs(completed_utc DESC);
             """;
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        await NormalizeLegacyTimestampsAsync(connection, cancellationToken).ConfigureAwait(false);
     }
+
+    // Keep sortable metadata canonical without rewriting the original uploaded JSON.
+    private static async Task NormalizeLegacyTimestampsAsync(
+        SqliteConnection connection,
+        CancellationToken cancellationToken)
+    {
+        using SqliteTransaction transaction = connection.BeginTransaction();
+        var legacyRows = new List<(string Id, string Started, string Completed)>();
+        await using (var select = connection.CreateCommand())
+        {
+            select.Transaction = transaction;
+            select.CommandText = """
+                SELECT run_id, started_utc, completed_utc FROM validation_runs
+                WHERE substr(started_utc, -6) <> '+00:00'
+                   OR substr(completed_utc, -6) <> '+00:00';
+                """;
+            await using SqliteDataReader reader = await select.ExecuteReaderAsync(cancellationToken)
+                .ConfigureAwait(false);
+            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+                legacyRows.Add((reader.GetString(0), reader.GetString(1), reader.GetString(2)));
+            }
+        }
+
+        foreach (var row in legacyRows)
+        {
+            await using var update = connection.CreateCommand();
+            update.Transaction = transaction;
+            update.CommandText = """
+                UPDATE validation_runs SET started_utc = $started, completed_utc = $completed
+                WHERE run_id = $id;
+                """;
+            update.Parameters.AddWithValue("$id", row.Id);
+            update.Parameters.AddWithValue("$started", FormatUtc(DateTimeOffset.Parse(
+                row.Started, System.Globalization.CultureInfo.InvariantCulture)));
+            update.Parameters.AddWithValue("$completed", FormatUtc(DateTimeOffset.Parse(
+                row.Completed, System.Globalization.CultureInfo.InvariantCulture)));
+            await update.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        transaction.Commit();
+    }
+
+    private static string FormatUtc(DateTimeOffset timestamp) =>
+        timestamp.ToUniversalTime().ToString("O", System.Globalization.CultureInfo.InvariantCulture);
 
     public async Task<bool> TryAddAsync(
         ValidationReport report,
@@ -91,8 +137,8 @@ public sealed class SqliteReportStore
                 $duration_ms, $report_json);
             """;
         command.Parameters.AddWithValue("$run_id", report.RunId.ToString("D"));
-        command.Parameters.AddWithValue("$started_utc", report.StartedUtc.ToString("O"));
-        command.Parameters.AddWithValue("$completed_utc", report.CompletedUtc.ToString("O"));
+        command.Parameters.AddWithValue("$started_utc", FormatUtc(report.StartedUtc));
+        command.Parameters.AddWithValue("$completed_utc", FormatUtc(report.CompletedUtc));
         command.Parameters.AddWithValue("$project", report.Project);
         command.Parameters.AddWithValue("$profile", report.Profile);
         command.Parameters.AddWithValue("$engine_version", report.EngineVersion);
@@ -137,7 +183,7 @@ public sealed class SqliteReportStore
             SELECT run_id, completed_utc, project, profile, engine_version,
                    assets_scanned, rules_run, errors, warnings, infos, suppressed, duration_ms
               FROM validation_runs
-             ORDER BY completed_utc DESC
+             ORDER BY completed_utc DESC, run_id ASC
              LIMIT $limit OFFSET $offset;
             """;
         command.Parameters.AddWithValue("$limit", limit);
