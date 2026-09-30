@@ -125,7 +125,7 @@ public sealed class ElasticsearchCrashIndex : ICrashIndex
         try
         {
             using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(
-                $"{_options.CrashIndex}/_doc/{document.CrashId:D}?op_type=create",
+                $"{_options.CrashIndex}/_doc/{document.CrashId:D}",
                 document,
                 SerializerOptions,
                 cancellationToken).ConfigureAwait(false);
