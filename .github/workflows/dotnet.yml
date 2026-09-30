@@ -3,6 +3,7 @@ name: .NET portable checks
 on:
   push:
     paths:
+      - "scripts/verify-validation.mjs"
       - "src/**"
       - "tests/**"
       - "tools/**"
@@ -20,6 +21,7 @@ on:
       - ".github/workflows/dotnet.yml"
   pull_request:
     paths:
+      - "scripts/verify-validation.mjs"
       - "src/**"
       - "tests/**"
       - "tools/**"
@@ -87,6 +89,9 @@ jobs:
         run: |
           dotnet test PipelineGuard.sln --configuration Release --no-build --logger "trx;LogFileName=tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
           dotnet test PipelineGuard.CrashIntelligence.sln --configuration Release --no-build --collect "XPlat Code Coverage" --logger "trx;LogFileName=crash-tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
+
+      - name: Smoke validation history over HTTP
+        run: node scripts/verify-validation.mjs
 
       - name: Build dashboard
         run: |

@@ -12,7 +12,7 @@ Gaps found by code review: SQLite orders offset-bearing timestamp strings rather
 
 ## Increments
 
-- [ ] 1. Validation history: ingest → SQLite → list/get smoke, UTC chronology and stable ties. Acceptance: regression fails on old ordering, offsets/ties survive restart, duplicate IDs preserve original JSON; real loopback smoke verifies 201/409/400/404 and pagination.
+- [x] 1. Validation history: ingest → SQLite → list/get smoke, UTC chronology and stable ties. Acceptance: regression fails on old ordering, offsets/ties survive restart, duplicate IDs preserve original JSON; real loopback smoke verifies 201/409/400/404 and pagination.
 - [ ] 2. Crash persistence boundary: test actual HTTP requests and status handling; distinguish unavailable/auth failures from absent indexes and preserve caller cancellation. Acceptance: create-only URL, immutable replay, 408/429/5xx/network/timeout transient, 400 permanent, no PUT after failed non-404 HEAD, cancellation not swallowed.
 - [ ] 3. Final run guide, decisions, evidence and interview walkthrough; all portable checks pass. Claims about the earlier Unreal and Compose runs remain historical only.
 - [ ] 4. Two independent faulty learning checkpoints on `shaoyu/learning`; regression demonstrably fails at each, solutions and hints separate, return to passing `shaoyu/rework`.

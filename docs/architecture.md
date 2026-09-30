@@ -71,7 +71,9 @@ The initial API is a local development service rather than a production multi-us
 - `GET /api/v1/runs/{id}`
 - `GET /health`
 
-Lists are paginated. Invalid or unsupported report versions receive a client error and are not persisted.
+Lists are paginated by completion instant descending, then run ID ascending for stable ties. SQLite metadata timestamps are canonical UTC round-trip strings; startup transactionally normalizes legacy offset-bearing metadata without changing uploaded report JSON. Duplicate IDs never replace stored reports. Invalid or unsupported report versions receive a client error and are not persisted.
+
+Run the isolated ingest → persist → list/get → restart workflow with `node scripts/verify-validation.mjs` after a Release build. See [rework decisions](rework/decisions.md) for alternatives and migration limits.
 
 ### MCP server
 
