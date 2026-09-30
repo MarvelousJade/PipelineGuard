@@ -87,7 +87,8 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test PipelineGuard.sln --configuration Release --no-build --logger "trx;LogFileName=tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
+          dotnet test tests/PipelineGuard.Core.Tests --configuration Release --no-build --logger "trx;LogFileName=core.trx" --results-directory "TestResults/${{ matrix.os }}"
+          dotnet test tests/PipelineGuard.Api.Tests --configuration Release --no-build --logger "trx;LogFileName=api.trx" --results-directory "TestResults/${{ matrix.os }}"
           dotnet test PipelineGuard.CrashIntelligence.sln --configuration Release --no-build --collect "XPlat Code Coverage" --logger "trx;LogFileName=crash-tests-${{ matrix.os }}.trx" --results-directory "TestResults/${{ matrix.os }}"
 
       - name: Smoke validation history over HTTP

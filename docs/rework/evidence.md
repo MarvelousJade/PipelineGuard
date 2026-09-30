@@ -35,3 +35,7 @@ dotnet test tests/PipelineGuard.CrashIntelligence.Tests -c Release
 ```
 
 Observed: zero build warnings/errors; **28 crash tests passed**, none skipped (9 original plus 19 adapter cases). Synthetic HTTP checks cover immutable replay, request path/body, 408/429/500/503, permanent 400, network failure, timeout, pre/in-flight caller cancellation, existing/missing indexes and concurrent index creation. No real Elasticsearch server or RabbitMQ was contacted.
+
+## Follow-up fix: distinct CI test evidence
+
+The final verification reproduced `WARNING: Overwriting results file` when the expanded validation solution used one fixed TRX filename for both test assemblies. This was introduced by adding a second test project, not an old product defect. CI now tests the two validation projects with distinct `core.trx` and `api.trx` filenames. Local execution of those exact commands passed 49 and 6 tests and produced both files (70,130 and 9,860 bytes in this run), with no overwrite warning. Hosted CI remains unrun.
