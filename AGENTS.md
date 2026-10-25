@@ -17,3 +17,7 @@ Record two or three genuine engineering decisions: problem, alternatives, eviden
 Keep documentation concise: purpose/run commands, architecture/main workflow, checks/actual results, decisions, learner exercises/separate solutions and limitations. Prepare a 60-second introduction and three-minute walkthrough. Only after the learner completes exercises, derive interview stories from their actual notes: problem → hypothesis → evidence → decision → fix → verification. Include questions testing alternatives and stack understanding; never invent personal experience.
 
 Finish the agreed scope, run required checks, inspect the final diff and commit verified agent-owned changes. Explain anything unfinished or unverified.
+
+## Measure results and record resume evidence
+
+Before implementing changes, read [docs/impact-and-resume-evidence.md](docs/impact-and-resume-evidence.md). Plan meaningful metrics and baseline/correctness checks before changing behavior; retain exact revisions, environment, workload, procedure and all raw results. Keep engineering, workflow and actual business impact separate. Update that evidence document with supported outcomes, contribution scope, limitations and verified/preliminary/unverified draft claims. Never invent numbers or convert synthetic benchmarks into real-user savings. Update an actual resume only when requested under its current instructions.

@@ -1,0 +1,22 @@
+{
+  "reviewedAtUtc": "2026-10-25T22:51:27.824Z",
+  "reviewedSourceCommit": "7813ea56b626a8b8c3d9a83dc9c3328810952a57",
+  "baselineMeaning": "Review commit only; historical experiment revisions are unknown unless explicitly recorded in the linked source.",
+  "files": [
+    {
+      "path": "docs/verification.md",
+      "bytes": 5739,
+      "sha256": "14770d1f39630ee0e90e6cbb9684cf71041ee9c9b883ce648e9b3de0bc786c6e"
+    },
+    {
+      "path": "docs/crash-intelligence/evidence/2026-08-08-compose-benchmark.md",
+      "bytes": 2451,
+      "sha256": "daf63d1e024e1b622cbeb9b756b981a4286d81cfe584147745919c7c5e9b1765"
+    },
+    {
+      "path": "docs/crash-intelligence/evidence/benchmark-2026-08-08t13-44-55-844z.json",
+      "bytes": 1101,
+      "sha256": "93112a9e43b3072cdc25be0576fffa77538cd2c793ddecc797de69da131bbb27"
+    }
+  ]
+}
